@@ -1,0 +1,334 @@
+<!-- browse.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Browse Deals | PCPartDeals</title>
+
+  <link rel="stylesheet" href="browse-style.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container nav-container">
+
+      <a href="index.html" class="logo">
+        PC<span>PartDeals</span>
+      </a>
+
+      <nav class="nav" id="navMenu">
+        <a href="https://pcpartdeals.eu/">Home</a>
+        <a href="https://pcpartdeals.eu/browse" class="active">Browse</a>
+        <a href="https://pcpartdeals.eu/login">Login</a>
+      </nav>
+
+      <button class="hamburger" id="hamburgerBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+
+      <div class="hero-box">
+        <h1>Browse PC Deals</h1>
+        <p>
+          Search and compare listings from the community.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="filters">
+    <div class="container">
+
+      <div class="filter-grid">
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search product (e.g. Ryzen 5 5500)"
+        />
+
+        <select id="productFilter">
+          <option value="">All Products</option>
+        </select>
+
+        <select id="sortPrice">
+          <option value="">Sort by price</option>
+          <option value="asc">Lowest first</option>
+          <option value="desc">Highest first</option>
+        </select>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LISTINGS -->
+  <section class="listings">
+    <div class="container">
+
+      <div id="listingGrid" class="listing-grid">
+        <div class="loading">
+          Loading listings...
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <script type="module">
+
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy
+    }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+
+    /*
+      REQUIRED FIRESTORE COLLECTION STRUCTURE:
+
+      listings/
+        autoId
+          title: "Ryzen 5 5500"
+          price: 69
+          imageUrl: "https://..."
+          externalLink: "https://www.yaga.ee/..."
+          sellerUid: "uid"
+          createdAt: serverTimestamp()
+          productType: "Ryzen 5 5500"
+
+      IMPORTANT:
+      create listing page later should validate:
+      - only 1 listing/day per uid
+      - only yaga.ee / osta.ee / vinted.com links
+      - image URL must be from allowed domains too
+    */
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+      authDomain: "pcpartdealseu.firebaseapp.com",
+      projectId: "pcpartdealseu",
+      storageBucket: "pcpartdealseu.firebasestorage.app",
+      messagingSenderId: "912036519057",
+      appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+      measurementId: "G-FPQ8YQ9EM0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const listingGrid =
+      document.getElementById("listingGrid");
+
+    const searchInput =
+      document.getElementById("searchInput");
+
+    const productFilter =
+      document.getElementById("productFilter");
+
+    const sortPrice =
+      document.getElementById("sortPrice");
+
+    let allListings = [];
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderListings(data) {
+
+      if (!data.length) {
+        listingGrid.innerHTML =
+          `<div class="loading">No listings found.</div>`;
+        return;
+      }
+
+      listingGrid.innerHTML = "";
+
+      data.forEach(item => {
+
+        const card = document.createElement("div");
+        card.className = "listing-card";
+
+        card.innerHTML = `
+          <img
+            src="${item.imageUrl}"
+            alt="${escapeHtml(item.title)}"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          >
+
+          <div class="listing-content">
+            <h3>${escapeHtml(item.title)}</h3>
+            <p class="price">€${item.price}</p>
+
+            <a
+              href="${item.externalLink}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="view-btn"
+            >
+              View Listing
+            </a>
+          </div>
+        `;
+
+        listingGrid.appendChild(card);
+
+      });
+
+    }
+
+    function applyFilters() {
+
+      let filtered = [...allListings];
+
+      const search =
+        searchInput.value.toLowerCase();
+
+      const product =
+        productFilter.value;
+
+      const sort =
+        sortPrice.value;
+
+      if (search) {
+        filtered = filtered.filter(x =>
+          x.title.toLowerCase().includes(search)
+        );
+      }
+
+      if (product) {
+        filtered = filtered.filter(x =>
+          x.productType === product
+        );
+      }
+
+      if (sort === "asc") {
+        filtered.sort((a,b)=>a.price-b.price);
+      }
+
+      if (sort === "desc") {
+        filtered.sort((a,b)=>b.price-a.price);
+      }
+
+      renderListings(filtered);
+    }
+
+    async function loadListings() {
+
+      try {
+
+        const q = query(
+          collection(db, "listings"),
+          orderBy("createdAt", "desc")
+        );
+
+        const snap = await getDocs(q);
+
+        allListings = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        const uniqueProducts =
+          [...new Set(
+            allListings.map(x => x.productType)
+          )];
+
+        uniqueProducts.forEach(product => {
+
+          const option =
+            document.createElement("option");
+
+          option.value = product;
+          option.textContent = product;
+
+          productFilter.appendChild(option);
+
+        });
+
+        renderListings(allListings);
+
+      } catch (e) {
+        console.error(e);
+
+        listingGrid.innerHTML =
+          `<div class="loading">
+            Failed loading listings.
+          </div>`;
+      }
+
+    }
+
+    searchInput.addEventListener(
+      "input",
+      applyFilters
+    );
+
+    productFilter.addEventListener(
+      "change",
+      applyFilters
+    );
+
+    sortPrice.addEventListener(
+      "change",
+      applyFilters
+    );
+
+    loadListings();
+
+    // mobile menu
+    const hamburgerBtn =
+      document.getElementById("hamburgerBtn");
+
+    const navMenu =
+      document.getElementById("navMenu");
+
+    hamburgerBtn.addEventListener(
+      "click",
+      ()=> {
+        navMenu.classList.toggle("active");
+        hamburgerBtn.classList.toggle("active");
+      }
+    );
+
+  </script>
+
+</body>
+</html>
