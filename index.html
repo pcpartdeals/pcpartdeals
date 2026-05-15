@@ -270,5 +270,29 @@
     });
   </script>
 
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+    authDomain: "pcpartdealseu.firebaseapp.com",
+    projectId: "pcpartdealseu",
+    storageBucket: "pcpartdealseu.firebasestorage.app",
+    messagingSenderId: "912036519057",
+    appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+    measurementId: "G-FPQ8YQ9EM0"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </body>
 </html>
