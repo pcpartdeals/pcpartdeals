@@ -197,23 +197,116 @@
           <a href="https://pcpartdeals.eu/post-listing" class="btn btn-green large-btn">Sell Hardware</a>
         </div>
 
-        <div class="hero-stats">
-          <div class="stat-card">
-            <h3>1</h3>
-            <p>Listings</p>
-          </div>
+       <div class="hero-stats">
 
-          <div class="stat-card">
-            <h3>0</h3>
-            <p>Users</p>
-          </div>
+  <div class="stat-card">
+    <h3 id="listingsCounter">
+      0
+    </h3>
+    <p>Listings</p>
+  </div>
 
-          <div class="stat-card">
-            <h3>24/7</h3>
-            <p>Marketplace</p>
-          </div>
-        </div>
-      </div>
+  <div class="stat-card">
+    <h3 id="usersCounter">
+      0
+    </h3>
+    <p>Users</p>
+  </div>
+
+  <div class="stat-card">
+    <h3>24/7</h3>
+    <p>Marketplace</p>
+  </div>
+
+</div>
+
+<script type="module">
+
+  import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+  import {
+    getFirestore,
+    collection,
+    getCountFromServer
+  }
+  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  // FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+    authDomain: "pcpartdealseu.firebaseapp.com",
+    projectId: "pcpartdealseu",
+    storageBucket: "pcpartdealseu.firebasestorage.app",
+    messagingSenderId: "912036519057",
+    appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+    measurementId: "G-FPQ8YQ9EM0"
+  };
+
+  // INIT
+  const app =
+    initializeApp(firebaseConfig);
+
+  const db =
+    getFirestore(app);
+
+  // ELEMENTS
+  const usersCounter =
+    document.getElementById(
+      "usersCounter"
+    );
+
+  const listingsCounter =
+    document.getElementById(
+      "listingsCounter"
+    );
+
+  // LOAD COUNTS
+  async function loadCounts() {
+
+    try {
+
+      // USERS
+      const usersSnap =
+        await getCountFromServer(
+          collection(
+            db,
+            "userSettings"
+          )
+        );
+
+      usersCounter.textContent =
+        usersSnap.data().count;
+
+      // LISTINGS
+      const listingsSnap =
+        await getCountFromServer(
+          collection(
+            db,
+            "listings"
+          )
+        );
+
+      listingsCounter.textContent =
+        listingsSnap.data().count;
+
+    } catch (error) {
+
+      console.error(error);
+
+      usersCounter.textContent =
+        "?";
+
+      listingsCounter.textContent =
+        "?";
+
+    }
+
+  }
+
+  loadCounts();
+
+</script>
 
       <div class="hero-image">
         <div class="floating-card top-card">
