@@ -1,0 +1,684 @@
+<!-- account.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Account Settings | PCPartDeals</title>
+
+  <link
+    rel="stylesheet"
+    href="account-style.css"
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+
+    <div class="container nav-container">
+
+      <a href="https://pcpartdeals.eu/" class="logo">
+        PC<span>PartDeals</span>
+      </a>
+
+      <nav class="nav" id="navMenu">
+
+        <a href="https://pcpartdeals.eu/">
+          Home
+        </a>
+
+        <a href="https://pcpartdeals.eu/browse">
+          Browse
+        </a>
+
+        <a href="https://pcpartdeals.eu/post-listing">
+          Post Listing
+        </a>
+
+        <a
+          href="https://pcpartdeals.eu/account"
+          class="active"
+        >
+          Account
+        </a>
+
+      </nav>
+
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+      >
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="container">
+
+      <!-- LOGIN REQUIRED -->
+      <section
+        id="authRequired"
+        class="auth-required hidden"
+      >
+
+        <div class="auth-card">
+
+          <h1>
+            Login Required
+          </h1>
+
+          <p>
+            You must login or create an account
+            to access settings and manage posts.
+          </p>
+
+          <div class="auth-buttons">
+
+            <a
+              href="https://pcpartdeals.eu/login"
+              class="login-btn"
+            >
+              Login
+            </a>
+
+            <a
+              href="https://pcpartdeals.eu/signup"
+              class="signup-btn"
+            >
+              Sign Up
+            </a>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ACCOUNT -->
+      <section
+        id="accountContent"
+        class="hidden"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <div class="tag">
+              Account Settings
+            </div>
+
+            <h1>
+              Manage Your Account
+            </h1>
+
+            <p>
+              Configure preferences and manage listings.
+            </p>
+
+          </div>
+
+          <button
+            id="logoutBtn"
+            class="logout-btn"
+          >
+            Logout
+          </button>
+
+        </div>
+
+        <div class="grid">
+
+          <!-- SETTINGS -->
+          <section class="settings-card">
+
+            <h2>
+              Preferences
+            </h2>
+
+            <form id="settingsForm">
+
+              <!-- REGION -->
+              <div class="input-group">
+
+                <label>
+                  Region
+                </label>
+
+                <select id="region">
+
+                  <option>
+                    Germany
+                  </option>
+
+                  <option>
+                    Poland
+                  </option>
+
+                  <option>
+                    Lithuania
+                  </option>
+
+                  <option>
+                    Latvia
+                  </option>
+
+                  <option>
+                    Estonia
+                  </option>
+
+                  <option>
+                    Other
+                  </option>
+
+                </select>
+
+              </div>
+
+              <!-- LANGUAGE -->
+              <div class="input-group">
+
+                <label>
+                  Language
+                </label>
+
+                <select id="language">
+
+                  <option value="english">
+                    English
+                  </option>
+
+                </select>
+
+              </div>
+
+              <!-- DELIVERY -->
+              <div class="input-group">
+
+                <label>
+                  Delivery Options
+                </label>
+
+                <select id="delivery">
+
+                  <option value="shipping">
+                    Shipping Enabled
+                  </option>
+
+                  <option value="pickup">
+                    Pickup Only
+                  </option>
+
+                </select>
+
+              </div>
+
+              <button
+                type="submit"
+                class="save-btn"
+              >
+                Save Settings
+              </button>
+
+              <p
+                id="settingsStatus"
+                class="status-message"
+              ></p>
+
+            </form>
+
+          </section>
+
+          <!-- POSTS -->
+          <section class="posts-card">
+
+            <div class="posts-header">
+
+              <h2>
+                Your Listings
+              </h2>
+
+              <span id="postCount">
+                0 Listings
+              </span>
+
+            </div>
+
+            <div
+              id="postsContainer"
+              class="posts-container"
+            >
+
+              <div class="loading">
+                Loading listings...
+              </div>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <script type="module">
+
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      query,
+      where,
+      getDocs,
+      deleteDoc
+    }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    // FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+      authDomain: "pcpartdealseu.firebaseapp.com",
+      projectId: "pcpartdealseu",
+      storageBucket: "pcpartdealseu.firebasestorage.app",
+      messagingSenderId: "912036519057",
+      appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+      measurementId: "G-FPQ8YQ9EM0"
+    };
+
+    const app =
+      initializeApp(firebaseConfig);
+
+    const auth =
+      getAuth(app);
+
+    const db =
+      getFirestore(app);
+
+    // ELEMENTS
+    const authRequired =
+      document.getElementById(
+        "authRequired"
+      );
+
+    const accountContent =
+      document.getElementById(
+        "accountContent"
+      );
+
+    const settingsForm =
+      document.getElementById(
+        "settingsForm"
+      );
+
+    const settingsStatus =
+      document.getElementById(
+        "settingsStatus"
+      );
+
+    const postsContainer =
+      document.getElementById(
+        "postsContainer"
+      );
+
+    const postCount =
+      document.getElementById(
+        "postCount"
+      );
+
+    let currentUser = null;
+
+    // AUTH
+    onAuthStateChanged(
+      auth,
+      async (user) => {
+
+        if (!user) {
+
+          authRequired.classList.remove(
+            "hidden"
+          );
+
+          accountContent.classList.add(
+            "hidden"
+          );
+
+          return;
+        }
+
+        currentUser = user;
+
+        authRequired.classList.add(
+          "hidden"
+        );
+
+        accountContent.classList.remove(
+          "hidden"
+        );
+
+        loadSettings();
+
+        loadPosts();
+
+      }
+    );
+
+    // LOAD SETTINGS
+    async function loadSettings() {
+
+      try {
+
+        const ref =
+          doc(
+            db,
+            "userSettings",
+            currentUser.uid
+          );
+
+        const snap =
+          await getDoc(ref);
+
+        if (snap.exists()) {
+
+          const data =
+            snap.data();
+
+          document.getElementById(
+            "region"
+          ).value =
+            data.region || "Estonia";
+
+          document.getElementById(
+            "language"
+          ).value =
+            data.language || "english";
+
+          document.getElementById(
+            "delivery"
+          ).value =
+            data.delivery || "shipping";
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+    }
+
+    // SAVE SETTINGS
+    settingsForm.addEventListener(
+      "submit",
+      async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+          await setDoc(
+            doc(
+              db,
+              "userSettings",
+              currentUser.uid
+            ),
+            {
+
+              region:
+                document.getElementById(
+                  "region"
+                ).value,
+
+              language:
+                document.getElementById(
+                  "language"
+                ).value,
+
+              delivery:
+                document.getElementById(
+                  "delivery"
+                ).value
+
+            }
+          );
+
+          settingsStatus.textContent =
+            "Settings saved.";
+
+          settingsStatus.className =
+            "status-message success";
+
+        } catch (error) {
+
+          console.error(error);
+
+          settingsStatus.textContent =
+            "Failed to save settings.";
+
+          settingsStatus.className =
+            "status-message error";
+
+        }
+
+      }
+    );
+
+    // LOAD POSTS
+    async function loadPosts() {
+
+      try {
+
+        const q = query(
+          collection(db, "listings"),
+          where(
+            "sellerUid",
+            "==",
+            currentUser.uid
+          )
+        );
+
+        const snap =
+          await getDocs(q);
+
+        postCount.textContent =
+          `${snap.size} Listings`;
+
+        if (snap.empty) {
+
+          postsContainer.innerHTML = `
+            <div class="loading">
+              No listings found.
+            </div>
+          `;
+
+          return;
+        }
+
+        postsContainer.innerHTML = "";
+
+        snap.forEach((docSnap) => {
+
+          const data =
+            docSnap.data();
+
+          const div =
+            document.createElement("div");
+
+          div.className =
+            "post-item";
+
+          div.innerHTML = `
+
+            <img
+              src="${data.imageUrl}"
+              alt="${data.title}"
+            />
+
+            <div class="post-content">
+
+              <h3>
+                ${data.title}
+              </h3>
+
+              <p>
+                €${data.price}
+              </p>
+
+            </div>
+
+            <button
+              class="delete-btn"
+              data-id="${docSnap.id}"
+            >
+              Delete
+            </button>
+
+          `;
+
+          postsContainer.appendChild(div);
+
+        });
+
+        // DELETE BUTTONS
+        document
+          .querySelectorAll(".delete-btn")
+          .forEach((btn) => {
+
+            btn.addEventListener(
+              "click",
+              async () => {
+
+                const confirmed =
+                  confirm(
+                    "Delete this listing?"
+                  );
+
+                if (!confirmed) return;
+
+                try {
+
+                  await deleteDoc(
+                    doc(
+                      db,
+                      "listings",
+                      btn.dataset.id
+                    )
+                  );
+
+                  btn.closest(
+                    ".post-item"
+                  ).remove();
+
+                  loadPosts();
+
+                } catch (error) {
+
+                  console.error(error);
+
+                  alert(
+                    "Failed to delete listing."
+                  );
+
+                }
+
+              }
+            );
+
+          });
+
+      } catch (error) {
+
+        console.error(error);
+
+        postsContainer.innerHTML = `
+          <div class="loading">
+            Failed loading posts.
+          </div>
+        `;
+
+      }
+
+    }
+
+    // LOGOUT
+    document
+      .getElementById("logoutBtn")
+      .addEventListener(
+        "click",
+        async () => {
+
+          await signOut(auth);
+
+          window.location.href =
+            "login.html";
+
+        }
+      );
+
+    // MOBILE MENU
+    const hamburgerBtn =
+      document.getElementById(
+        "hamburgerBtn"
+      );
+
+    const navMenu =
+      document.getElementById(
+        "navMenu"
+      );
+
+    hamburgerBtn.addEventListener(
+      "click",
+      () => {
+
+        navMenu.classList.toggle(
+          "active"
+        );
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
