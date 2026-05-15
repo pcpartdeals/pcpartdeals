@@ -431,78 +431,47 @@
 
       }
 
-    });
-
-    // VALID MARKETPLACE LINKS
     function isAllowedMarketplace(url) {
 
-      try {
+  try {
 
-        const parsed =
-          new URL(url);
+    const parsed =
+      new URL(url);
 
-        const host =
-          parsed.hostname.toLowerCase();
+    const host =
+      parsed.hostname.toLowerCase();
 
-        return (
-          host.includes("yaga.ee") ||
-          host.includes("osta.ee") ||
-          host.includes("vinted.com") ||
-          host.includes("vinted.net") ||
-          host.includes("img-osta.ee") ||
-          host.includes("vinted.ee")
-        );
+    return (
 
-      } catch {
+      host.includes("yaga.ee")
 
-        return false;
-      }
+      ||
 
-    }
+      host.includes("osta.ee")
 
-    // STATUS
-    function showMessage(
-      message,
-      type = "error"
-    ) {
+      ||
 
-      statusMessage.textContent =
-        message;
+      host.includes("img-osta.ee")
 
-      statusMessage.className =
-        `status-message ${type}`;
+      ||
 
-    }
+      host.includes("vinted.com")
 
-    // IMAGE PREVIEW
-    imageUrlInput.addEventListener(
-      "input",
-      () => {
+      ||
 
-        const value =
-          imageUrlInput.value.trim();
+      host.includes("vinted.ee")
 
-        if (
-          value &&
-          isAllowedMarketplace(value)
-        ) {
+      ||
 
-          previewImage.src = value;
+      host.includes("vinted.net")
 
-          previewBox.classList.remove(
-            "hidden"
-          );
-
-        } else {
-
-          previewBox.classList.add(
-            "hidden"
-          );
-
-        }
-
-      }
     );
+
+  } catch {
+
+    return false;
+  }
+}
 
     // FORM SUBMIT
     listingForm.addEventListener(
