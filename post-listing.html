@@ -18,7 +18,10 @@
   />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -26,15 +29,7 @@
   >
 
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-MY119JMX3S"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-MY119JMX3S');
-</script>
 <body>
 
   <!-- HEADER -->
@@ -48,16 +43,16 @@
 
       <nav class="nav" id="navMenu">
 
-        <a href="index.html">
+        <a href="https://pcpartdeals.eu/">
           Home
         </a>
 
-        <a href="browse.html">
+        <a href="https://pcpartdeals.eu/browse">
           Browse
         </a>
 
         <a
-          href="post-listing.html"
+          href="https://pcpartdeals.eu/post-listing"
           class="active"
         >
           Post Listing
@@ -147,7 +142,9 @@
 
             <div class="form-header">
 
-              <h2>Create Listing</h2>
+              <h2>
+                Create Listing
+              </h2>
 
               <p>
                 Publish a PC hardware deal
@@ -198,7 +195,7 @@
 
               </div>
 
-              <!-- PRODUCT TYPE -->
+              <!-- CATEGORY -->
               <div class="input-group">
 
                 <label>
@@ -257,6 +254,89 @@
                   <option>
                     CPU Cooler
                   </option>
+                  
+                  <option>
+                    Expansion Card
+                  </option>
+                  
+                  <option>
+                    Other
+                  </option>
+                </select>
+
+              </div>
+
+              <!-- MARKETPLACE -->
+              <div class="input-group">
+
+                <label>
+                  Marketplace
+                </label>
+
+                <select
+                  id="marketplace"
+                  required
+                >
+
+                  <option value="">
+                    Select Marketplace
+                  </option>
+
+                  <option value="Yaga">
+                    Yaga
+                  </option>
+
+                  <option value="Osta">
+                    Osta
+                  </option>
+
+                  <option value="Vinted">
+                    Vinted
+                  </option>
+
+                </select>
+
+              </div>
+
+              <!-- CONDITION -->
+              <div class="input-group">
+
+                <label>
+                  Product Condition
+                </label>
+
+                <select
+                  id="condition"
+                  required
+                >
+
+                  <option value="">
+                    Select Condition
+                  </option>
+
+                  <option value="New">
+                    New
+                  </option>
+
+                  <option value="Like-New">
+                    Like-New
+                  </option>
+
+                  <option value="Used">
+                    Used
+                  </option>
+
+                  <option value="Satisfactory">
+                    Satisfactory
+                  </option>
+
+                  <option value="Does Not Work (Tested)">
+                    Does Not Work (Tested)
+                  </option>
+
+                  <option value="Does Not Work (Untested)">
+                    Does Not Work (Hasn't Been Tested)
+                  </option>
 
                 </select>
 
@@ -266,7 +346,7 @@
               <div class="input-group">
 
                 <label>
-                  Price (€)
+                  Product Price (€)
                 </label>
 
                 <input
@@ -274,13 +354,32 @@
                   id="price"
                   placeholder="299"
                   min="1"
-                  max="100000"
+                  max="50000"
                   required
                 />
 
               </div>
 
-              <!-- EXTERNAL LINK -->
+              <!-- SHIPPING -->
+              <div class="input-group">
+
+                <label>
+                  Shipping Price (€)
+                </label>
+
+                <input
+                  type="number"
+                  id="shippingPrice"
+                  placeholder="Example: 3.99"
+                  min="0"
+                  max="1000"
+                  step="0.01"
+                  required
+                />
+
+              </div>
+
+              <!-- EXTERNAL URL -->
               <div class="input-group">
 
                 <label>
@@ -293,14 +392,6 @@
                   placeholder="https://www.yaga.ee/..."
                   required
                 />
-
-                <small>
-                  Allowed:
-                  yaga.ee,
-                  osta.ee,
-                  vinted.com,
-                  vinted.ee
-                </small>
 
               </div>
 
@@ -318,13 +409,9 @@
                   required
                 />
 
-                <small>
-                  Image must come from approved marketplaces
-                </small>
-
               </div>
 
-              <!-- PREVIEW -->
+              <!-- IMAGE PREVIEW -->
               <div
                 class="preview hidden"
                 id="preview"
@@ -386,7 +473,6 @@
       getDoc
     }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
 
     // FIREBASE CONFIG
     const firebaseConfig = {
@@ -539,7 +625,7 @@
 
     }
 
-    // IMAGE PREVIEW
+    // PREVIEW
     imageUrlInput.addEventListener(
       "input",
       () => {
@@ -568,7 +654,7 @@
       }
     );
 
-    // FORM SUBMIT
+    // SUBMIT
     listingForm.addEventListener(
       "submit",
       async (e) => {
@@ -595,10 +681,27 @@
             .getElementById("productType")
             .value;
 
+        const marketplace =
+          document
+            .getElementById("marketplace")
+            .value;
+
+        const condition =
+          document
+            .getElementById("condition")
+            .value;
+
         const price =
           Number(
             document
               .getElementById("price")
+              .value
+          );
+
+        const shippingPrice =
+          Number(
+            document
+              .getElementById("shippingPrice")
               .value
           );
 
@@ -671,7 +774,14 @@
               dailyRef
             );
 
-          if (dailySnap.exists()) {
+          const unlimitedUid =
+            "GcMHmudzFPYVa4TD7WceOI3Awb63";
+
+          if (
+            dailySnap.exists()
+            &&
+            currentUser.uid !== unlimitedUid
+          ) {
 
             showMessage(
               "You already posted today."
@@ -694,10 +804,22 @@
             {
 
               title,
+
               productType,
+
+              marketplace,
+
+              condition,
+
               price,
 
+              shippingPrice,
+
+              totalPrice:
+                price + shippingPrice,
+
               externalLink,
+
               imageUrl,
 
               sellerUid:
@@ -712,19 +834,25 @@
             }
           );
 
-          // DAILY TRACKING
-          await setDoc(
-            dailyRef,
-            {
+          // DAILY TRACKER
+          if (
+            currentUser.uid !== unlimitedUid
+          ) {
 
-              uid:
-                currentUser.uid,
+            await setDoc(
+              dailyRef,
+              {
 
-              createdAt:
-                serverTimestamp()
+                uid:
+                  currentUser.uid,
 
-            }
-          );
+                createdAt:
+                  serverTimestamp()
+
+              }
+            );
+
+          }
 
           showMessage(
             "Listing published successfully.",
