@@ -95,7 +95,7 @@
           </h1>
 
           <p>
-            Add listings from Yaga, Osta and Vinted
+            Add listings from Vinted, Kleinanzeigen, Wallapop, Leboncoin, Osta.ee and Yaga.ee
             so buyers can discover everything in one place.
           </p>
 
@@ -282,16 +282,28 @@
                     Select Marketplace
                   </option>
 
-                  <option value="Yaga">
-                    Yaga
-                  </option>
-
-                  <option value="Osta">
-                    Osta
+                  <option value="Kleinanzeigen">
+                    Kleinanzeigen
                   </option>
 
                   <option value="Vinted">
                     Vinted
+                  </option>
+
+                  <option value="Leboncoin">
+                    Leboncoin
+                  </option>
+
+                  <option value="Yaga">
+                    Yaga(.ee)
+                  </option>
+
+                  <option value="Wallapop">
+                    Wallapop
+                  </option>
+
+                  <option value="Osta">
+                    Osta(.ee)
                   </option>
 
                 </select>
@@ -601,6 +613,18 @@
           ||
 
           host.includes("vinted.net")
+
+          ||
+
+          host.includes("kleinanzeigen.de")
+
+          ||
+
+          host.includes("wallapop.com")
+
+          ||
+
+          host.includes("leboncoin.fr")
 
         );
 
