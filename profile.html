@@ -90,9 +90,21 @@
             PCPartDeals Seller
           </div>
 
-          <h1 id="profileUsername">
-            Loading...
-          </h1>
+          <!-- UPDATED USERNAME ROW -->
+          <div class="username-row">
+
+            <h1 id="profileUsername">
+              Loading...
+            </h1>
+
+            <span
+              id="verifiedBadge"
+              class="verified-badge hidden"
+            >
+              ✔ Verified
+            </span>
+
+          </div>
 
           <p id="profileBio">
             User marketplace profile
@@ -277,6 +289,12 @@
     const sortPrice =
       document.getElementById(
         "sortPrice"
+      );
+
+    // VERIFIED BADGE
+    const verifiedBadge =
+      document.getElementById(
+        "verifiedBadge"
       );
 
     let allListings = [];
@@ -479,6 +497,26 @@
         const uid =
           userSnap.docs[0].id;
 
+        // VERIFIED SELLER BADGE
+        if (userData.verifiedSeller === true) {
+
+          verifiedBadge.classList.remove(
+            "hidden"
+          );
+
+        }
+
+        // BIO
+        if (userData.bio) {
+
+          document.getElementById(
+            "profileBio"
+          ).textContent =
+            userData.bio;
+
+        }
+
+        // JOIN DATE
         if (userData.createdAt?.seconds) {
 
           const date =
