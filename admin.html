@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Admin Panel | PCPartDeals</title>
+
+  <link
+    rel="stylesheet"
+    href="admin-style.css"
+  />
+
+  <link rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+  <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+
+    <div class="container nav-container">
+
+      <a href="index.html" class="logo">
+        PC<span>PartDeals</span>
+      </a>
+
+      <nav class="nav">
+
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="browse.html">
+          Browse
+        </a>
+
+        <a
+          href="admin.html"
+          class="active"
+        >
+          Admin
+        </a>
+
+      </nav>
+
+    </div>
+
+  </header>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="container">
+
+      <!-- ACCESS DENIED -->
+      <div
+        id="accessDenied"
+        class="access-box hidden"
+      >
+
+        <h1>
+          Access Denied
+        </h1>
+
+        <p>
+          You are not an administrator.
+        </p>
+
+      </div>
+
+      <!-- ADMIN PANEL -->
+      <div
+        id="adminPanel"
+        class="hidden"
+      >
+
+        <!-- TITLE -->
+        <div class="page-header">
+
+          <h1>
+            Admin Panel
+          </h1>
+
+          <p>
+            Verify sellers and handle reports.
+          </p>
+
+        </div>
+
+        <!-- VERIFIED SELLERS -->
+        <section class="admin-section">
+
+          <div class="section-header">
+
+            <h2>
+              Seller Verification
+            </h2>
+
+          </div>
+
+          <div
+            id="sellerGrid"
+            class="grid"
+          >
+
+            <div class="loading">
+              Loading users...
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- REPORTS -->
+        <section class="admin-section">
+
+          <div class="section-header">
+
+            <h2>
+              Reports
+            </h2>
+
+          </div>
+
+          <div
+            id="reportGrid"
+            class="grid"
+          >
+
+            <div class="loading">
+              Loading reports...
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FIREBASE -->
+  <script type="module">
+
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+    import {
+      getAuth,
+      onAuthStateChanged
+    }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      doc,
+      updateDoc,
+      deleteDoc
+    }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    // FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+      authDomain: "pcpartdealseu.firebaseapp.com",
+      projectId: "pcpartdealseu",
+      storageBucket: "pcpartdealseu.firebasestorage.app",
+      messagingSenderId: "912036519057",
+      appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+      measurementId: "G-FPQ8YQ9EM0"
+    };
+
+    // INIT
+    const app =
+      initializeApp(firebaseConfig);
+
+    const auth =
+      getAuth(app);
+
+    const db =
+      getFirestore(app);
+
+    // ADMIN UID
+    const ADMIN_UID =
+      "GcMHmudzFPYVa4TD7WceOI3Awb63";
+
+    // ELEMENTS
+    const adminPanel =
+      document.getElementById(
+        "adminPanel"
+      );
+
+    const accessDenied =
+      document.getElementById(
+        "accessDenied"
+      );
+
+    const sellerGrid =
+      document.getElementById(
+        "sellerGrid"
+      );
+
+    const reportGrid =
+      document.getElementById(
+        "reportGrid"
+      );
+
+    // ESCAPE HTML
+    function escapeHtml(text) {
+
+      if (!text) return "";
+
+      const div =
+        document.createElement("div");
+
+      div.textContent = text;
+
+      return div.innerHTML;
+
+    }
+
+    // AUTH CHECK
+    onAuthStateChanged(
+      auth,
+      async (user) => {
+
+        if (
+          !user ||
+          user.uid !== ADMIN_UID
+        ) {
+
+          accessDenied.classList.remove(
+            "hidden"
+          );
+
+          adminPanel.classList.add(
+            "hidden"
+          );
+
+          return;
+        }
+
+        accessDenied.classList.add(
+          "hidden"
+        );
+
+        adminPanel.classList.remove(
+          "hidden"
+        );
+
+        loadUsers();
+        loadReports();
+
+      }
+    );
+
+    // LOAD USERS
+    async function loadUsers() {
+
+      try {
+
+        const snap =
+          await getDocs(
+            collection(
+              db,
+              "userSettings"
+            )
+          );
+
+        if (snap.empty) {
+
+          sellerGrid.innerHTML = `
+            <div class="empty">
+              No users found.
+            </div>
+          `;
+
+          return;
+        }
+
+        sellerGrid.innerHTML = "";
+
+        snap.forEach(docSnap => {
+
+          const data =
+            docSnap.data();
+
+          const card =
+            document.createElement("div");
+
+          card.className =
+            "card";
+
+          card.innerHTML = `
+
+            <div class="card-top">
+
+              <h3>
+                ${escapeHtml(
+                  data.username || "Unknown"
+                )}
+              </h3>
+
+              ${
+                data.verifiedSeller
+                ?
+                `<span class="verified">
+                  VERIFIED
+                </span>`
+                :
+                ""
+              }
+
+            </div>
+
+            <p>
+              ${escapeHtml(
+                data.bio || "No bio"
+              )}
+            </p>
+
+            <button
+              class="verify-btn"
+              data-id="${docSnap.id}"
+              data-state="${data.verifiedSeller ? "true" : "false"}"
+            >
+              ${
+                data.verifiedSeller
+                ?
+                "Remove Verification"
+                :
+                "Verify Seller"
+              }
+            </button>
+
+          `;
+
+          sellerGrid.appendChild(card);
+
+        });
+
+        // BUTTON EVENTS
+        document
+          .querySelectorAll(".verify-btn")
+          .forEach(btn => {
+
+            btn.addEventListener(
+              "click",
+              async () => {
+
+                const userId =
+                  btn.dataset.id;
+
+                const currentState =
+                  btn.dataset.state === "true";
+
+                try {
+
+                  await updateDoc(
+                    doc(
+                      db,
+                      "userSettings",
+                      userId
+                    ),
+                    {
+                      verifiedSeller:
+                        !currentState
+                    }
+                  );
+
+                  loadUsers();
+
+                } catch (e) {
+
+                  console.error(e);
+
+                  alert(
+                    "Failed updating verification."
+                  );
+
+                }
+
+              }
+            );
+
+          });
+
+      } catch (e) {
+
+        console.error(e);
+
+        sellerGrid.innerHTML = `
+          <div class="empty">
+            Failed loading users.
+          </div>
+        `;
+
+      }
+
+    }
+
+    // LOAD REPORTS
+    async function loadReports() {
+
+      try {
+
+        const snap =
+          await getDocs(
+            collection(
+              db,
+              "reports"
+            )
+          );
+
+        if (snap.empty) {
+
+          reportGrid.innerHTML = `
+            <div class="empty">
+              No reports found.
+            </div>
+          `;
+
+          return;
+        }
+
+        reportGrid.innerHTML = "";
+
+        snap.forEach(docSnap => {
+
+          const data =
+            docSnap.data();
+
+          const card =
+            document.createElement("div");
+
+          card.className =
+            "card";
+
+          card.innerHTML = `
+
+            <h3>
+              ${escapeHtml(
+                data.reason || "No reason"
+              )}
+            </h3>
+
+            <p>
+              Listing ID:
+              ${escapeHtml(
+                data.listingId || "Unknown"
+              )}
+            </p>
+
+            <p>
+              Reporter:
+              ${escapeHtml(
+                data.reporterUid || "Unknown"
+              )}
+            </p>
+
+            <button
+              class="delete-btn"
+              data-id="${docSnap.id}"
+            >
+              Delete Report
+            </button>
+
+          `;
+
+          reportGrid.appendChild(card);
+
+        });
+
+        // DELETE EVENTS
+        document
+          .querySelectorAll(".delete-btn")
+          .forEach(btn => {
+
+            btn.addEventListener(
+              "click",
+              async () => {
+
+                try {
+
+                  await deleteDoc(
+                    doc(
+                      db,
+                      "reports",
+                      btn.dataset.id
+                    )
+                  );
+
+                  loadReports();
+
+                } catch (e) {
+
+                  console.error(e);
+
+                  alert(
+                    "Failed deleting report."
+                  );
+
+                }
+
+              }
+            );
+
+          });
+
+      } catch (e) {
+
+        console.error(e);
+
+        reportGrid.innerHTML = `
+          <div class="empty">
+            Failed loading reports.
+          </div>
+        `;
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
