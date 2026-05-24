@@ -1,0 +1,185 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:"Inter",sans-serif;
+  background:#0f172a;
+  color:white;
+}
+
+.container{
+  width:min(1200px,92%);
+  margin:auto;
+}
+
+.header{
+  background:#111827;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.nav-container{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 0;
+}
+
+.logo{
+  text-decoration:none;
+  color:white;
+  font-size:1.5rem;
+  font-weight:800;
+}
+
+.logo span{
+  color:#60a5fa;
+}
+
+.nav{
+  display:flex;
+  gap:20px;
+}
+
+.nav a{
+  text-decoration:none;
+  color:#cbd5e1;
+  font-weight:600;
+}
+
+.nav a.active{
+  color:white;
+}
+
+.page{
+  padding:40px 0;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.access-box{
+  background:#111827;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  padding:40px;
+  text-align:center;
+}
+
+.page-header{
+  margin-bottom:40px;
+}
+
+.page-header h1{
+  font-size:2.5rem;
+  margin-bottom:10px;
+}
+
+.page-header p{
+  color:#94a3b8;
+}
+
+.admin-section{
+  margin-bottom:50px;
+}
+
+.section-header{
+  margin-bottom:20px;
+}
+
+.section-header h2{
+  font-size:1.5rem;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  padding:24px;
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.card h3{
+  font-size:1.1rem;
+}
+
+.card p{
+  color:#cbd5e1;
+  margin-bottom:10px;
+  line-height:1.5;
+}
+
+.verified{
+  background:#22c55e;
+  color:white;
+  font-size:0.75rem;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+.verify-btn,
+.delete-btn{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.2s;
+  margin-top:10px;
+}
+
+.verify-btn{
+  background:#2563eb;
+  color:white;
+}
+
+.verify-btn:hover{
+  opacity:0.9;
+}
+
+.delete-btn{
+  background:#dc2626;
+  color:white;
+}
+
+.delete-btn:hover{
+  opacity:0.9;
+}
+
+.loading,
+.empty{
+  background:#111827;
+  border-radius:20px;
+  padding:30px;
+  text-align:center;
+  color:#94a3b8;
+}
+
+@media (max-width:768px){
+
+  .nav{
+    gap:14px;
+  }
+
+  .page-header h1{
+    font-size:2rem;
+  }
+
+}
