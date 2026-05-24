@@ -254,14 +254,15 @@
                   <option>
                     CPU Cooler
                   </option>
-                  
+
                   <option>
                     Expansion Card
                   </option>
-                  
+
                   <option>
                     Other
                   </option>
+
                 </select>
 
               </div>
@@ -779,6 +780,51 @@
 
         try {
 
+          // GET USERNAME
+          let sellerUsername =
+            "user";
+
+          try {
+
+            const settingsRef =
+              doc(
+                db,
+                "userSettings",
+                currentUser.uid
+              );
+
+            const settingsSnap =
+              await getDoc(
+                settingsRef
+              );
+
+            if (
+              settingsSnap.exists()
+            ) {
+
+              const settingsData =
+                settingsSnap.data();
+
+              if (
+                settingsData.username
+              ) {
+
+                sellerUsername =
+                  settingsData.username;
+
+              }
+
+            }
+
+          } catch (e) {
+
+            console.error(
+              "Failed loading username:",
+              e
+            );
+
+          }
+
           // DAILY LIMIT
           const now =
             new Date();
@@ -851,6 +897,9 @@
 
               sellerEmail:
                 currentUser.email,
+
+              sellerUsername:
+                sellerUsername,
 
               createdAt:
                 serverTimestamp()
