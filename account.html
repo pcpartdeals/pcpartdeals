@@ -26,15 +26,22 @@
   >
 
 </head>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MY119JMX3S"></script>
+
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+
+  function gtag(){
+    dataLayer.push(arguments);
+  }
+
   gtag('js', new Date());
 
   gtag('config', 'G-MY119JMX3S');
 </script>
+
 <body>
 
   <!-- HEADER -->
@@ -226,6 +233,29 @@
 
               </div>
 
+              <!-- USERNAME -->
+              <div class="input-group">
+
+                <label>
+                  Username
+                </label>
+
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="example: prebuilts"
+                  minlength="3"
+                  maxlength="20"
+                />
+
+                <small>
+                  Permanent public username.
+                  Only lowercase letters,
+                  numbers, _ and - allowed.
+                </small>
+
+              </div>
+
               <!-- DELIVERY -->
               <div class="input-group">
 
@@ -320,7 +350,9 @@
       query,
       where,
       getDocs,
-      deleteDoc
+      deleteDoc,
+      runTransaction,
+      serverTimestamp
     }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -412,6 +444,129 @@
       }
     );
 
+    // USERNAME CLAIM
+    async function claimUsername(username) {
+
+      username =
+        username
+          .toLowerCase()
+          .trim();
+
+      if (!username) return;
+
+      // VALIDATION
+      const valid =
+        /^[a-z0-9_-]{3,20}$/
+          .test(username);
+
+      if (!valid) {
+
+        throw new Error(
+          "Invalid username format."
+        );
+
+      }
+
+      // RESERVED
+      const blocked = [
+
+        "admin",
+        "support",
+        "api",
+        "login",
+        "signup",
+        "browse",
+        "account",
+        "settings",
+        "profile"
+
+      ];
+
+      if (
+        blocked.includes(username)
+      ) {
+
+        throw new Error(
+          "Username unavailable."
+        );
+
+      }
+
+      const settingsRef =
+        doc(
+          db,
+          "userSettings",
+          currentUser.uid
+        );
+
+      const settingsSnap =
+        await getDoc(settingsRef);
+
+      // prevent changing usernames
+      if (
+        settingsSnap.exists()
+        &&
+        settingsSnap.data().username
+        &&
+        settingsSnap.data().username
+          !== username
+      ) {
+
+        throw new Error(
+          "Username cannot be changed."
+        );
+
+      }
+
+      const usernameRef =
+        doc(
+          db,
+          "usernames",
+          username
+        );
+
+      await runTransaction(
+        db,
+        async (transaction) => {
+
+          const usernameSnap =
+            await transaction.get(
+              usernameRef
+            );
+
+          // TAKEN
+          if (
+            usernameSnap.exists()
+            &&
+            usernameSnap.data().uid
+              !== currentUser.uid
+          ) {
+
+            throw new Error(
+              "Username already taken."
+            );
+
+          }
+
+          // CLAIM
+          transaction.set(
+            usernameRef,
+            {
+
+              uid:
+                currentUser.uid,
+
+              createdAt:
+                serverTimestamp()
+
+            }
+          );
+
+        }
+      );
+
+    }
+
     // LOAD SETTINGS
     async function loadSettings() {
 
@@ -447,6 +602,11 @@
           ).value =
             data.delivery || "shipping";
 
+          document.getElementById(
+            "username"
+          ).value =
+            data.username || "";
+
         }
 
       } catch (error) {
@@ -465,6 +625,19 @@
         e.preventDefault();
 
         try {
+
+          const username =
+            document
+              .getElementById(
+                "username"
+              )
+              .value
+              .toLowerCase()
+              .trim();
+
+          await claimUsername(
+            username
+          );
 
           await setDoc(
             doc(
@@ -487,13 +660,16 @@
               delivery:
                 document.getElementById(
                   "delivery"
-                ).value
+                ).value,
 
-            }
+              username
+
+            },
+            { merge: true }
           );
 
           settingsStatus.textContent =
-            "Settings saved.";
+            "Settings saved successfully.";
 
           settingsStatus.className =
             "status-message success";
@@ -503,6 +679,7 @@
           console.error(error);
 
           settingsStatus.textContent =
+            error.message ||
             "Failed to save settings.";
 
           settingsStatus.className =
