@@ -104,6 +104,41 @@
 
         </div>
 
+        <!-- VERIFICATION SEARCH -->
+        <section class="admin-section">
+
+          <div class="section-header">
+
+            <h2>
+              Verify Seller By Username
+            </h2>
+
+          </div>
+
+          <div class="verify-search-box">
+
+            <input
+              type="text"
+              id="usernameSearch"
+              placeholder="Enter username..."
+            />
+
+            <button
+              id="searchUserBtn"
+              class="verify-btn"
+            >
+              Search User
+            </button>
+
+          </div>
+
+          <div
+            id="searchResult"
+            class="grid"
+          ></div>
+
+        </section>
+
         <!-- VERIFIED SELLERS -->
         <section class="admin-section">
 
@@ -176,7 +211,9 @@
       getDocs,
       doc,
       updateDoc,
-      deleteDoc
+      deleteDoc,
+      query,
+      where
     }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -224,6 +261,21 @@
     const reportGrid =
       document.getElementById(
         "reportGrid"
+      );
+
+    const usernameSearch =
+      document.getElementById(
+        "usernameSearch"
+      );
+
+    const searchUserBtn =
+      document.getElementById(
+        "searchUserBtn"
+      );
+
+    const searchResult =
+      document.getElementById(
+        "searchResult"
       );
 
     // ESCAPE HTML
@@ -275,6 +327,208 @@
       }
     );
 
+    // TOGGLE VERIFICATION
+    async function toggleVerification(
+      userId,
+      currentState
+    ) {
+
+      try {
+
+        await updateDoc(
+          doc(
+            db,
+            "userSettings",
+            userId
+          ),
+          {
+            verifiedSeller:
+              !currentState
+          }
+        );
+
+        loadUsers();
+
+        if (
+          usernameSearch.value.trim()
+        ) {
+
+          searchUser();
+
+        }
+
+      } catch (e) {
+
+        console.error(e);
+
+        alert(
+          "Failed updating verification."
+        );
+
+      }
+
+    }
+
+    // SEARCH USER
+    async function searchUser() {
+
+      const username =
+        usernameSearch.value
+          .trim()
+          .toLowerCase();
+
+      if (!username) {
+
+        searchResult.innerHTML = `
+          <div class="empty">
+            Enter a username.
+          </div>
+        `;
+
+        return;
+      }
+
+      try {
+
+        searchResult.innerHTML = `
+          <div class="loading">
+            Searching...
+          </div>
+        `;
+
+        const q =
+          query(
+            collection(
+              db,
+              "userSettings"
+            ),
+            where(
+              "username",
+              "==",
+              username
+            )
+          );
+
+        const snap =
+          await getDocs(q);
+
+        if (snap.empty) {
+
+          searchResult.innerHTML = `
+            <div class="empty">
+              User not found.
+            </div>
+          `;
+
+          return;
+        }
+
+        searchResult.innerHTML = "";
+
+        snap.forEach(docSnap => {
+
+          const data =
+            docSnap.data();
+
+          const verified =
+            data.verifiedSeller === true;
+
+          const card =
+            document.createElement("div");
+
+          card.className =
+            "card";
+
+          card.innerHTML = `
+
+            <div class="card-top">
+
+              <h3>
+                ${escapeHtml(
+                  data.username || "Unknown"
+                )}
+              </h3>
+
+              ${
+                verified
+                ?
+                `
+                <span class="verified">
+                  VERIFIED
+                </span>
+                `
+                :
+                ""
+              }
+
+            </div>
+
+            <p>
+              ${escapeHtml(
+                data.bio || "No bio"
+              )}
+            </p>
+
+            <button
+              class="verify-btn search-verify-btn"
+              data-id="${docSnap.id}"
+              data-state="${verified}"
+            >
+              ${
+                verified
+                ?
+                "Remove Verification"
+                :
+                "Verify Seller"
+              }
+            </button>
+
+          `;
+
+          searchResult.appendChild(card);
+
+        });
+
+        document
+          .querySelectorAll(
+            ".search-verify-btn"
+          )
+          .forEach(btn => {
+
+            btn.addEventListener(
+              "click",
+              async () => {
+
+                const userId =
+                  btn.dataset.id;
+
+                const currentState =
+                  btn.dataset.state === "true";
+
+                await toggleVerification(
+                  userId,
+                  currentState
+                );
+
+              }
+            );
+
+          });
+
+      } catch (e) {
+
+        console.error(e);
+
+        searchResult.innerHTML = `
+          <div class="empty">
+            Failed searching user.
+          </div>
+        `;
+
+      }
+
+    }
+
     // LOAD USERS
     async function loadUsers() {
 
@@ -306,6 +560,9 @@
           const data =
             docSnap.data();
 
+          const verified =
+            data.verifiedSeller === true;
+
           const card =
             document.createElement("div");
 
@@ -323,11 +580,13 @@
               </h3>
 
               ${
-                data.verifiedSeller
+                verified
                 ?
-                `<span class="verified">
+                `
+                <span class="verified">
                   VERIFIED
-                </span>`
+                </span>
+                `
                 :
                 ""
               }
@@ -343,10 +602,10 @@
             <button
               class="verify-btn"
               data-id="${docSnap.id}"
-              data-state="${data.verifiedSeller ? "true" : "false"}"
+              data-state="${verified}"
             >
               ${
-                data.verifiedSeller
+                verified
                 ?
                 "Remove Verification"
                 :
@@ -360,9 +619,10 @@
 
         });
 
-        // BUTTON EVENTS
         document
-          .querySelectorAll(".verify-btn")
+          .querySelectorAll(
+            "#sellerGrid .verify-btn"
+          )
           .forEach(btn => {
 
             btn.addEventListener(
@@ -375,31 +635,10 @@
                 const currentState =
                   btn.dataset.state === "true";
 
-                try {
-
-                  await updateDoc(
-                    doc(
-                      db,
-                      "userSettings",
-                      userId
-                    ),
-                    {
-                      verifiedSeller:
-                        !currentState
-                    }
-                  );
-
-                  loadUsers();
-
-                } catch (e) {
-
-                  console.error(e);
-
-                  alert(
-                    "Failed updating verification."
-                  );
-
-                }
+                await toggleVerification(
+                  userId,
+                  currentState
+                );
 
               }
             );
@@ -492,7 +731,6 @@
 
         });
 
-        // DELETE EVENTS
         document
           .querySelectorAll(".delete-btn")
           .forEach(btn => {
@@ -541,6 +779,26 @@
       }
 
     }
+
+    // SEARCH BUTTON
+    searchUserBtn.addEventListener(
+      "click",
+      searchUser
+    );
+
+    // ENTER KEY SUPPORT
+    usernameSearch.addEventListener(
+      "keypress",
+      (e) => {
+
+        if (e.key === "Enter") {
+
+          searchUser();
+
+        }
+
+      }
+    );
 
   </script>
 
