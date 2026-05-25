@@ -483,142 +483,164 @@
     }
 
     // RENDER
-    function renderListings(data) {
+    // RENDER
+function renderListings(data) {
 
-      if (!data.length) {
+  if (!data.length) {
 
-        listingGrid.innerHTML = `
-          <div class="loading">
-            No listings found.
-          </div>
-        `;
+    listingGrid.innerHTML = `
+      <div class="loading">
+        No listings found.
+      </div>
+    `;
 
-        return;
-      }
+    return;
+  }
 
-      listingGrid.innerHTML = "";
+  listingGrid.innerHTML = "";
 
-      data.forEach(item => {
+  data.forEach((item, index) => {
 
-        const totalPrice =
-          (
-            Number(item.price || 0)
-            +
-            Number(item.shippingPrice || 0)
-          ).toFixed(2);
+    const totalPrice =
+      (
+        Number(item.price || 0)
+        +
+        Number(item.shippingPrice || 0)
+      ).toFixed(2);
 
-        const username =
-          item.sellerUsername ||
-          item.username ||
-          "user";
+    const username =
+      item.sellerUsername ||
+      item.username ||
+      "user";
 
-        const profileUrl =
-          `https://pcpartdeals.eu/profile.html?user=${encodeURIComponent(username)}`;
+    const profileUrl =
+      `https://pcpartdeals.eu/profile.html?user=${encodeURIComponent(username)}`;
 
-        const card =
-          document.createElement("div");
+    const card =
+      document.createElement("div");
 
-        card.className =
-          "listing-card";
+    card.className =
+      "listing-card";
 
-        card.innerHTML = `
+    card.innerHTML = `
 
-          <img
-            src="${item.imageUrl}"
-            alt="${escapeHtml(item.title)}"
-            loading="lazy"
-            referrerpolicy="no-referrer"
+      <img
+        src="${item.imageUrl}"
+        alt="${escapeHtml(item.title)}"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      >
+
+      <div class="listing-content">
+
+        <div class="listing-tags">
+
+          <span class="listing-badge">
+            ${escapeHtml(item.marketplace || "Marketplace")}
+          </span>
+
+          <span class="listing-badge condition">
+            ${escapeHtml(item.condition || "Unknown")}
+          </span>
+
+        </div>
+
+        <h3>
+          ${escapeHtml(item.title)}
+        </h3>
+
+        <div class="price-group">
+
+          <p class="price">
+            €${Number(item.price || 0).toFixed(2)}
+          </p>
+
+          <p class="shipping-price">
+            Shipping:
+            €${Number(item.shippingPrice || 0).toFixed(2)}
+          </p>
+
+          <p class="total-price">
+            Total:
+            €${totalPrice}
+          </p>
+
+        </div>
+
+        <div class="listing-actions">
+
+          <a
+            href="${item.externalLink}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="view-btn"
           >
+            View Listing
+          </a>
 
-          <div class="listing-content">
+          <a
+            href="${profileUrl}"
+            class="profile-btn"
+          >
+            View Seller
+          </a>
 
-            <div class="listing-tags">
+          <button
+            class="report-btn"
+            data-id="${item.id}"
+          >
+            Report
+          </button>
 
-              <span class="listing-badge">
-                ${escapeHtml(item.marketplace || "Marketplace")}
-              </span>
+        </div>
 
-              <span class="listing-badge condition">
-                ${escapeHtml(item.condition || "Unknown")}
-              </span>
+      </div>
+    `;
 
-            </div>
+    listingGrid.appendChild(card);
 
-            <h3>
-              ${escapeHtml(item.title)}
-            </h3>
+    // ADD AD EVERY 5 LISTINGS
+    if ((index + 1) % 5 === 0) {
 
-            <div class="price-group">
+      const adCard =
+        document.createElement("div");
 
-              <p class="price">
-                €${Number(item.price || 0).toFixed(2)}
-              </p>
+      adCard.className =
+        "listing-card ad-card";
 
-              <p class="shipping-price">
-                Shipping:
-                €${Number(item.shippingPrice || 0).toFixed(2)}
-              </p>
+      adCard.innerHTML = `
+        <div class="listing-content ad-content">
 
-              <p class="total-price">
-                Total:
-                €${totalPrice}
-              </p>
+          <div ta-ad-container=""></div>
 
-            </div>
+        </div>
+      `;
 
-            <div class="listing-actions">
-
-              <a
-                href="${item.externalLink}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="view-btn"
-              >
-                View Listing
-              </a>
-
-              <a
-                href="${profileUrl}"
-                class="profile-btn"
-              >
-                View Seller
-              </a>
-
-              <button
-                class="report-btn"
-                data-id="${item.id}"
-              >
-                Report
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-        listingGrid.appendChild(card);
-
-      });
-
-      // REPORT BUTTON EVENTS
-      document
-        .querySelectorAll(".report-btn")
-        .forEach(btn => {
-
-          btn.addEventListener(
-            "click",
-            () => {
-
-              reportListing(
-                btn.dataset.id
-              );
-
-            }
-          );
-
-        });
+      listingGrid.appendChild(adCard);
 
     }
+
+  });
+
+  // REPORT BUTTON EVENTS
+  document
+    .querySelectorAll(".report-btn")
+    .forEach(btn => {
+
+      btn.addEventListener(
+        "click",
+        () => {
+
+          reportListing(
+            btn.dataset.id
+          );
+
+        }
+      );
+
+    });
+
+}
 
     // FILTERS
     function applyFilters() {
