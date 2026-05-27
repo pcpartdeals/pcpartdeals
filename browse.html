@@ -665,81 +665,107 @@ function renderListings(data) {
     listingGrid.appendChild(card);
 
     // AD EVERY 5 LISTINGS
-    if ((index + 1) % 5 === 0) {
+if ((index + 1) % 5 === 0) {
 
-      const adCard =
-        document.createElement("div");
+  const adCard =
+    document.createElement("div");
 
-      adCard.className =
-        "listing-card ad-card";
+  adCard.className =
+    "listing-card ad-card";
 
-      // SHOW AFFILIATE 25% OF TIME
+  // RENDER AFFILIATE
+  function renderAffiliateAd() {
+
+    const affiliate =
+      getRandomAffiliate();
+
+    adCard.innerHTML = `
+
+      <a
+        href="${affiliate.link}"
+        target="_blank"
+        rel="nofollow sponsored noopener noreferrer"
+        class="affiliate-ad"
+      >
+
+        <img
+          src="${affiliate.image}"
+          alt="${escapeHtml(affiliate.title)}"
+          class="affiliate-image"
+          loading="lazy"
+        >
+
+        <div class="affiliate-content">
+
+          <span class="affiliate-label">
+            Sponsored
+          </span>
+
+          <h3>
+            ${escapeHtml(affiliate.title)}
+          </h3>
+
+          <p>
+            ${escapeHtml(affiliate.description)}
+          </p>
+
+          <div class="affiliate-disclaimer">
+            As an Amazon Associate I earn from qualifying purchases.
+          </div>
+
+        </div>
+
+      </a>
+
+    `;
+
+  }
+
+  // NORMAL 25% AFFILIATE CHANCE
+  if (
+    affiliateAds.length > 0 &&
+    shouldShowAffiliate()
+  ) {
+
+    renderAffiliateAd();
+
+  } else {
+
+    // TRY NORMAL AD NETWORK
+    adCard.innerHTML = `
+      <div class="listing-content ad-content">
+
+        <div class="tinyadz-container" ta-ad-container=""></div>
+
+      </div>
+    `;
+
+    // ADBLOCK DETECTION
+    setTimeout(() => {
+
+      const adContainer =
+        adCard.querySelector(
+          ".tinyadz-container"
+        );
+
+      // IF BLOCKED OR EMPTY
       if (
-        affiliateAds.length > 0 &&
-        shouldShowAffiliate()
+        !adContainer ||
+        adContainer.offsetHeight < 20 ||
+        adContainer.innerHTML.trim() === ""
       ) {
 
-        const affiliate =
-          getRandomAffiliate();
-
-        adCard.innerHTML = `
-
-          <a
-            href="${affiliate.link}"
-            target="_blank"
-            rel="nofollow sponsored noopener noreferrer"
-            class="affiliate-ad"
-          >
-
-            <img
-              src="${affiliate.image}"
-              alt="${escapeHtml(affiliate.title)}"
-              class="affiliate-image"
-              loading="lazy"
-            >
-
-            <div class="affiliate-content">
-
-              <span class="affiliate-label">
-                Sponsored
-              </span>
-
-              <h3>
-                ${escapeHtml(affiliate.title)}
-              </h3>
-
-              <p>
-                ${escapeHtml(affiliate.description)}
-              </p>
-
-              <div class="affiliate-disclaimer">
-                #ad
-              </div>
-
-            </div>
-
-          </a>
-
-        `;
-
-      } else {
-
-        // TINYADZ FALLBACK
-        adCard.innerHTML = `
-          <div class="listing-content ad-content">
-
-            <div ta-ad-container=""></div>
-
-          </div>
-        `;
+        renderAffiliateAd();
 
       }
 
-      listingGrid.appendChild(adCard);
+    }, 2500);
 
-    }
+  }
 
-  });
+  listingGrid.appendChild(adCard);
+
+}
 
   // REPORT BUTTON EVENTS
   document
