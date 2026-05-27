@@ -760,8 +760,7 @@ function renderListings(data) {
 
           const blocked =
             !adContainer ||
-            adContainer.offsetHeight < 20 ||
-            adContainer.innerHTML.trim() === "";
+            adContainer.offsetHeight < 20;
 
           if (blocked) {
 
