@@ -662,7 +662,7 @@ function renderListings(data) {
       </div>
     `;
 
-        listingGrid.appendChild(card);
+    listingGrid.appendChild(card);
 
     // AD EVERY 5 LISTINGS
     if ((index + 1) % 5 === 0) {
@@ -721,18 +721,18 @@ function renderListings(data) {
 
       }
 
-      // RANDOM 25% AFFILIATE
       const useAffiliateDirectly =
         affiliateAds.length > 0 &&
         shouldShowAffiliate();
 
+      // 25% DIRECT AFFILIATE
       if (useAffiliateDirectly) {
 
         renderAffiliateAd();
 
       } else {
 
-        // NORMAL AD NETWORK AD
+        // NORMAL AD
         adCard.innerHTML = `
           <div class="listing-content ad-content">
 
@@ -748,7 +748,7 @@ function renderListings(data) {
 
       listingGrid.appendChild(adCard);
 
-      // FALLBACK IF ADBLOCK HIDES AD
+      // FALLBACK IF BLOCKED
       if (!useAffiliateDirectly) {
 
         setTimeout(() => {
@@ -774,6 +774,8 @@ function renderListings(data) {
       }
 
     }
+
+  });
 
   // REPORT BUTTON EVENTS
   document
