@@ -362,94 +362,46 @@ select:focus{
   }
 
 }
-/* INACTIVE / BROKEN LISTINGS */
+/* REPORT BUTTON */
+.listing-actions .report-btn {
+  background: #ff4d4d !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: 0.2s ease !important;
+  width: 100% !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.listing-actions .report-btn:hover {
+  background: #e63939 !important;
+  transform: translateY(-2px);
+}
+
+/* DEAD LISTINGS */
+.listing-dead {
+  opacity: 0.7;
+  border: 2px solid #ff4d4d;
+}
 
 .listing-warning {
-
-  margin-top: 10px;
-
-  padding: 8px 12px;
-
-  border-radius: 12px;
-
-  background: rgba(255, 153, 0, 0.12);
-
-  border: 1px solid rgba(255, 153, 0, 0.25);
-
-  color: #ffb347;
-
-  font-size: 13px;
-
+  background: rgba(255, 77, 77, 0.12);
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.35);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
   font-weight: 600;
-
-  line-height: 1.4;
-
-}
-
-.listing-dead {
-
-  opacity: 0.72;
-
-  transition: opacity 0.2s ease;
-
-}
-
-.listing-dead:hover {
-
-  opacity: 0.9;
-
 }
 
 .disabled-btn {
-
+  background: #666 !important;
+  pointer-events: none;
   opacity: 0.7;
-
-  filter: grayscale(20%);
-
-}
-/* REPORT BUTTON */
-
-button.report-btn {
-
-  margin-top: 10px !important;
-
-  width: 100% !important;
-
-  padding: 11px 14px !important;
-
-  border-radius: 12px !important;
-
-  border: 1px solid rgba(255, 60, 60, 0.25) !important;
-
-  background: rgba(255, 60, 60, 0.12) !important;
-
-  color: #ff7b7b !important;
-
-  font-size: 14px !important;
-
-  font-weight: 700 !important;
-
-  cursor: pointer !important;
-
-  transition:
-    background 0.2s ease,
-    transform 0.15s ease,
-    border-color 0.2s ease !important;
-
-}
-
-button.report-btn:hover {
-
-  background: rgba(255, 60, 60, 0.2) !important;
-
-  border-color: rgba(255, 80, 80, 0.4) !important;
-
-  transform: translateY(-1px);
-
-}
-
-button.report-btn:active {
-
-  transform: scale(0.98);
-
 }
