@@ -364,7 +364,38 @@
       );
 
     let allListings = [];
+    
+    // CHECK IF LISTING URL LOOKS DEAD
+async function checkListingStatus(url) {
 
+  try {
+
+    // TRY FETCHING PAGE
+    const response = await fetch(url, {
+      method: "GET",
+      mode: "no-cors"
+    });
+
+    // no-cors gives opaque responses,
+    // so we cannot fully verify status
+    // but at least fetch succeeded
+
+    return {
+      valid: true,
+      sold: false
+    };
+
+  } catch (e) {
+
+    // FETCH FAILED
+    return {
+      valid: false,
+      sold: false
+    };
+
+  }
+
+}
     // ESCAPE HTML
     function escapeHtml(text) {
 
@@ -564,7 +595,7 @@ function renderListings(data) {
 
   listingGrid.innerHTML = "";
 
-  data.forEach((item, index) => {
+  data.forEach(async (item, index) => {
 
     const totalPrice =
       (
@@ -582,10 +613,24 @@ function renderListings(data) {
       `https://pcpartdeals.eu/profile.html?user=${encodeURIComponent(username)}`;
 
     const card =
-      document.createElement("div");
+  document.createElement("div");
 
-    card.className =
-      "listing-card";
+card.className =
+  "listing-card";
+
+// CHECK LISTING STATUS
+const listingStatus =
+  await checkListingStatus(
+    item.externalLink
+  );
+
+if (!listingStatus.valid) {
+
+  card.classList.add(
+    "listing-dead"
+  );
+
+}
 
     card.innerHTML = `
 
@@ -611,8 +656,14 @@ function renderListings(data) {
         </div>
 
         <h3>
-          ${escapeHtml(item.title)}
-        </h3>
+  ${escapeHtml(item.title)}
+</h3>
+
+${!listingStatus.valid ? `
+  <div class="listing-warning">
+    Listing may be unavailable
+  </div>
+` : ""}
 
         <div class="price-group">
 
@@ -635,13 +686,15 @@ function renderListings(data) {
         <div class="listing-actions">
 
           <a
-            href="${item.externalLink}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="view-btn"
-          >
-            View Listing
-          </a>
+  href="${item.externalLink}"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="view-btn ${!listingStatus.valid ? 'disabled-btn' : ''}"
+>
+  ${!listingStatus.valid
+    ? 'Possibly Unavailable'
+    : 'View Listing'}
+</a>
 
           <a
             href="${profileUrl}"
