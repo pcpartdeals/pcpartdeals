@@ -365,35 +365,45 @@
 
     let allListings = [];
     
-    // CHECK IF LISTING URL LOOKS DEAD
+    // CHECK IF LISTING URL LOOKS VALID
 async function checkListingStatus(url) {
+
+  // MOST MARKETPLACES BLOCK FETCH CHECKS
+  // SO WE ONLY VALIDATE URL FORMAT
+
+  let result = {
+    valid: true,
+    sold: false
+  };
 
   try {
 
-    // TRY FETCHING PAGE
-    const response = await fetch(url, {
-      method: "GET",
-      mode: "no-cors"
-    });
+    const parsed =
+      new URL(url);
 
-    // no-cors gives opaque responses,
-    // so we cannot fully verify status
-    // but at least fetch succeeded
+    if (!parsed.hostname) {
 
-    return {
-      valid: true,
-      sold: false
-    };
+      result.valid = false;
+
+    }
+
+    if (
+      url.includes("undefined") ||
+      url.includes("null") ||
+      url.length < 15
+    ) {
+
+      result.valid = false;
+
+    }
 
   } catch (e) {
 
-    // FETCH FAILED
-    return {
-      valid: false,
-      sold: false
-    };
+    result.valid = false;
 
   }
+
+  return result;
 
 }
     // ESCAPE HTML
@@ -580,7 +590,7 @@ function shouldShowAffiliate() {
 }
 
 // RENDER
-function renderListings(data) {
+async function renderListings(data) {
 
   if (!data.length) {
 
@@ -595,7 +605,7 @@ function renderListings(data) {
 
   listingGrid.innerHTML = "";
 
-  data.forEach(async (item, index) => {
+  for (const [index, item] of data.entries()) {
 
     const totalPrice =
       (
@@ -618,54 +628,18 @@ function renderListings(data) {
 card.className =
   "listing-card";
 
-// CHECK IF LISTING URL LOOKS DEAD
-async function checkListingStatus(url) {
+const listingStatus =
+  await checkListingStatus(
+    item.externalLink
+  );
 
-  // DEFAULT:
-  // Assume valid because most marketplaces
-  // block browser-side checks
+if (!listingStatus.valid) {
 
-  let result = {
-    valid: true,
-    sold: false
-  };
-
-  try {
-
-    // ONLY TEST BASIC URL FORMAT
-    const parsed =
-      new URL(url);
-
-    // INVALID IF NO HOSTNAME
-    if (!parsed.hostname) {
-
-      result.valid = false;
-
-    }
-
-    // OPTIONAL:
-    // Mark suspicious URLs
-
-    if (
-      url.includes("undefined") ||
-      url.includes("null") ||
-      url.length < 15
-    ) {
-
-      result.valid = false;
-
-    }
-
-  } catch (e) {
-
-    result.valid = false;
-
-  }
-
-  return result;
+  card.classList.add(
+    "listing-dead"
+  );
 
 }
-
     card.innerHTML = `
 
       <img
@@ -861,7 +835,7 @@ ${!listingStatus.valid ? `
 
     }
 
-  });
+  }
 
   // REPORT BUTTON EVENTS
   document
