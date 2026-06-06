@@ -509,3 +509,34 @@ select:focus{
   }
 
 }
+.match-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #0f172a;
+
+  border: 1px solid #1f2937;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  margin-bottom: 10px;
+}
+
+.remove-match-btn {
+
+  background: #dc2626;
+
+  color: white;
+
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 8px 12px;
+
+  cursor: pointer;
+
+}
