@@ -251,30 +251,38 @@
 
   </section>
 
-  <!-- KEYWORD ALERTS -->
-<section class="keyword-alerts">
+   <section class="keyword-alerts">
 
   <div class="container">
 
     <div class="alert-box">
 
-      <h3>Keyword Alerts</h3>
+      <h3>Deal Alerts</h3>
 
-      <div class="alert-controls">
+      <input
+        type="text"
+        id="alertKeyword"
+        placeholder="RTX 3060"
+      >
 
-        <input
-          type="text"
-          id="keywordInput"
-          placeholder="RTX 4070, Ryzen 7 7800X3D..."
-        >
+      <input
+        type="number"
+        id="alertPrice"
+        placeholder="Max Price (€)"
+      >
 
-        <button id="addKeywordBtn">
-          Add Alert
-        </button>
+      <button id="addAlertBtn">
+        Add Alert
+      </button>
 
-      </div>
+      <div id="alertList"></div>
 
-      <div id="keywordList"></div>
+      <h3 style="margin-top:20px;">
+        🔔 Matches
+        <span id="matchCount">0</span>
+      </h3>
+
+      <div id="matchList"></div>
 
     </div>
 
@@ -393,19 +401,34 @@
         "sortPrice"
       );
 
-    const keywordInput =
+    const alertKeyword =
       document.getElementById(
-        "keywordInput"
+        "alertKeyword"
       );
 
-    const addKeywordBtn =
+    const alertPrice =
       document.getElementById(
-        "addKeywordBtn"
+        "alertPrice"
       );
 
-    const keywordList =
+    const addAlertBtn =
       document.getElementById(
-        "keywordList"
+        "addAlertBtn"
+      );
+
+    const alertList =
+      document.getElementById(
+        "alertList"
+      );
+
+    const matchList =
+      document.getElementById(
+        "matchList"
+      );
+
+    const matchCount =
+      document.getElementById(
+        "matchCount"
       );
 
     let allListings = [];
@@ -1046,201 +1069,19 @@ ${!listingStatus.valid ? `
 
     }
 
-    // KEYWORD ALERTS
-let keywordAlerts =
+    let alerts =
   JSON.parse(
     localStorage.getItem(
-      "keywordAlerts"
+      "dealAlerts"
     ) || "[]"
   );
 
-function saveKeywordAlerts() {
-
-  localStorage.setItem(
-    "keywordAlerts",
-    JSON.stringify(
-      keywordAlerts
-    )
+let matches =
+  JSON.parse(
+    localStorage.getItem(
+      "dealMatches"
+    ) || "[]"
   );
-
-}
-
-function renderKeywordAlerts() {
-
-  keywordList.innerHTML = "";
-
-  keywordAlerts.forEach(
-    (keyword, index) => {
-
-      const tag =
-        document.createElement(
-          "div"
-        );
-
-      tag.className =
-        "keyword-tag";
-
-      tag.innerHTML = `
-        ${escapeHtml(keyword)}
-        <button
-          data-index="${index}"
-          class="remove-keyword"
-        >
-          ✕
-        </button>
-      `;
-
-      keywordList.appendChild(tag);
-
-    }
-  );
-
-  document
-    .querySelectorAll(
-      ".remove-keyword"
-    )
-    .forEach(btn => {
-
-      btn.addEventListener(
-        "click",
-        () => {
-
-          keywordAlerts.splice(
-            Number(
-              btn.dataset.index
-            ),
-            1
-          );
-
-          saveKeywordAlerts();
-
-          renderKeywordAlerts();
-
-        }
-      );
-
-    });
-
-}
-
-async function addKeywordAlert() {
-
-  const keyword =
-    keywordInput.value
-      .trim()
-      .toLowerCase();
-
-  if (!keyword) {
-    return;
-  }
-
-  if (
-    !keywordAlerts.includes(
-      keyword
-    )
-  ) {
-
-    if (
-      Notification.permission
-      !== "granted"
-    ) {
-
-      const permission =
-        await Notification.requestPermission();
-
-      if (
-        permission !== "granted"
-      ) {
-
-        alert(
-          "Notifications must be enabled."
-        );
-
-        return;
-      }
-
-    }
-
-    keywordAlerts.push(
-      keyword
-    );
-
-    saveKeywordAlerts();
-
-    renderKeywordAlerts();
-
-  }
-
-  keywordInput.value = "";
-
-}
-function checkKeywordAlerts(
-  listings
-) {
-
-  if (
-    Notification.permission
-    !== "granted"
-  ) {
-    return;
-  }
-
-  const seen =
-    JSON.parse(
-      localStorage.getItem(
-        "seenAlerts"
-      ) || "[]"
-    );
-
-  listings.forEach(item => {
-
-    const title =
-      (
-        item.title || ""
-      ).toLowerCase();
-
-    keywordAlerts.forEach(
-      keyword => {
-
-        const alertId =
-          item.id + "_" + keyword;
-
-        if (
-          title.includes(
-            keyword
-          ) &&
-          !seen.includes(
-            alertId
-          )
-        ) {
-
-          new Notification(
-            "New matching deal!",
-            {
-              body:
-                item.title
-            }
-          );
-
-          seen.push(
-            alertId
-          );
-
-        }
-
-      }
-    );
-
-  });
-
-  localStorage.setItem(
-    "seenAlerts",
-    JSON.stringify(
-      seen
-    )
-  );
-
-}
 
     
     // LOAD LISTINGS
@@ -1320,6 +1161,7 @@ function checkKeywordAlerts(
         });
 
         renderListings(allListings);
+        checkAlerts(allListings);
         checkKeywordAlerts(
           allListings
         );
@@ -1369,15 +1211,222 @@ function checkKeywordAlerts(
       "change",
       applyFilters
     );
-    addKeywordBtn.addEventListener(
-      "click",
-      addKeywordAlert
+
+    function renderAlerts() {
+
+  alertList.innerHTML = "";
+
+  alerts.forEach(
+    (alert, index) => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.innerHTML = `
+        ${alert.keyword}
+        ≤ €${alert.maxPrice}
+
+        <button
+          onclick="removeAlert(${index})"
+        >
+          X
+        </button>
+      `;
+
+      alertList.appendChild(
+        div
+      );
+
+    }
+  );
+
+}
+    window.removeAlert =
+function(index) {
+
+  alerts.splice(index, 1);
+
+  localStorage.setItem(
+    "dealAlerts",
+    JSON.stringify(alerts)
+  );
+
+  renderAlerts();
+
+};
+    addAlertBtn.addEventListener(
+  "click",
+  async () => {
+
+    const keyword =
+      alertKeyword.value
+        .trim()
+        .toLowerCase();
+
+    const maxPrice =
+      Number(
+        alertPrice.value
+      );
+
+    if (!keyword || !maxPrice) {
+      return;
+    }
+
+    if (
+      Notification.permission
+      === "default"
+    ) {
+
+      await Notification.requestPermission();
+
+    }
+
+    alerts.push({
+
+      keyword,
+      maxPrice
+
+    });
+
+    localStorage.setItem(
+      "dealAlerts",
+      JSON.stringify(alerts)
     );
 
-    renderKeywordAlerts();
+    renderAlerts();
+
+    alertKeyword.value = "";
+    alertPrice.value = "";
+
+  }
+);
+    function checkAlerts(listings) {
+
+  alerts.forEach(alert => {
+
+    listings.forEach(item => {
+
+      const title =
+        (
+          item.title || ""
+        ).toLowerCase();
+
+      const totalPrice =
+        Number(
+          item.totalPrice ||
+          item.price ||
+          0
+        );
+
+      if (
+        title.includes(
+          alert.keyword
+        ) &&
+        totalPrice <= alert.maxPrice
+      ) {
+
+        const id =
+          item.id +
+          "_" +
+          alert.keyword;
+
+        const alreadyExists =
+          matches.some(
+            x => x.id === id
+          );
+
+        if (alreadyExists) {
+          return;
+        }
+
+        matches.push({
+
+          id,
+
+          title:
+            item.title,
+
+          price:
+            totalPrice,
+
+          link:
+            item.externalLink
+
+        });
+
+        if (
+          Notification.permission
+          === "granted"
+        ) {
+
+          new Notification(
+            "Matching Deal Found!",
+            {
+
+              body:
+                `${item.title} (€${totalPrice})`
+
+            }
+          );
+
+        }
+
+      }
+
+    });
+
+  });
+
+  localStorage.setItem(
+    "dealMatches",
+    JSON.stringify(matches)
+  );
+
+  renderMatches();
+
+}
+    function renderMatches() {
+
+  matchList.innerHTML = "";
+
+  matchCount.textContent =
+    matches.length;
+
+  matches
+    .slice()
+    .reverse()
+    .forEach(match => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.innerHTML = `
+        <a
+          href="${match.link}"
+          target="_blank"
+        >
+          ${match.title}
+        </a>
+
+        (€${match.price})
+      `;
+
+      matchList.appendChild(
+        div
+      );
+
+    });
+
+}
 
     // LOAD
     loadListings();
+    renderAlerts();
+    renderMatches();
 
     // MOBILE MENU
     const hamburgerBtn =
