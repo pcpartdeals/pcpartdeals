@@ -1161,6 +1161,8 @@ let matches =
         });
 
         renderListings(allListings);
+        cleanupMatches();
+        renderMatches();
         checkAlerts(allListings);
         checkKeywordAlerts(
           allListings
@@ -1345,14 +1347,13 @@ function(index) {
 
           id,
 
-          title:
-            item.title,
+          listingId: item.id,
 
-          price:
-            totalPrice,
+          title: item.title,
 
-          link:
-            item.externalLink
+          price: totalPrice,
+
+          link: item.externalLink
 
         });
 
@@ -1397,29 +1398,89 @@ function(index) {
   matches
     .slice()
     .reverse()
-    .forEach(match => {
+    .forEach((match) => {
 
       const div =
-        document.createElement(
-          "div"
-        );
+        document.createElement("div");
+
+      div.className =
+        "match-item";
 
       div.innerHTML = `
-        <a
-          href="${match.link}"
-          target="_blank"
-        >
-          ${match.title}
-        </a>
 
-        (€${match.price})
+        <div>
+
+          <a
+            href="${match.link}"
+            target="_blank"
+          >
+            ${match.title}
+          </a>
+
+          <div>
+            €${match.price}
+          </div>
+
+        </div>
+
+        <button
+          class="remove-match-btn"
+          data-id="${match.id}"
+        >
+          ✕
+        </button>
+
       `;
 
-      matchList.appendChild(
-        div
+      matchList.appendChild(div);
+
+    });
+
+  document
+    .querySelectorAll(
+      ".remove-match-btn"
+    )
+    .forEach(btn => {
+
+      btn.addEventListener(
+        "click",
+        () => {
+
+          matches =
+            matches.filter(
+              x => x.id !== btn.dataset.id
+            );
+
+          localStorage.setItem(
+            "dealMatches",
+            JSON.stringify(matches)
+          );
+
+          renderMatches();
+
+        }
       );
 
     });
+
+}
+function cleanupMatches() {
+
+  matches =
+    matches.filter(match =>
+
+      allListings.some(
+        listing =>
+          listing.id ===
+          match.listingId
+      )
+
+    );
+
+  localStorage.setItem(
+    "dealMatches",
+    JSON.stringify(matches)
+  );
 
 }
 
