@@ -323,7 +323,9 @@
       query,
       orderBy,
       addDoc,
-      serverTimestamp
+      serverTimestamp,
+      doc,
+      getDoc
     }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -1083,6 +1085,59 @@ let matches =
     ) || "[]"
   );
 
+    async function isSellerActive(uid) {
+    
+      try {
+    
+        const settingsRef =
+          doc(
+            db,
+            "userSettings",
+            uid
+          );
+    
+        const snap =
+          await getDoc(
+            settingsRef
+          );
+    
+        if (!snap.exists()) {
+    
+          return false;
+    
+        }
+    
+        const data =
+          snap.data();
+    
+        if (!data.lastActive) {
+    
+          return false;
+    
+        }
+    
+        const FIVE_DAYS =
+          5 * 24 * 60 * 60 * 1000;
+    
+        const lastActive =
+          data.lastActive
+            .toDate()
+            .getTime();
+    
+        return (
+          Date.now() - lastActive
+        ) < FIVE_DAYS;
+    
+      } catch (e) {
+    
+        console.error(e);
+    
+        return false;
+    
+      }
+    
+    }
+
     
     // LOAD LISTINGS
     async function loadListings() {
@@ -1105,17 +1160,53 @@ let matches =
         const now =
           Date.now();
 
-        allListings =
-          snap.docs
-            .map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            }))
-            .filter(item => {
+        const activeListings = [];
 
-              if (!item.createdAt) {
-                return false;
-              }
+        for (const docSnap of snap.docs) {
+        
+          const item = {
+            id: docSnap.id,
+            ...docSnap.data()
+          };
+        
+          // HIDE SOLD LISTINGS
+          if (item.sold === true) {
+            continue;
+          }
+        
+          // HIDE USERS INACTIVE FOR 5 DAYS
+          const sellerActive =
+            await isSellerActive(
+              item.sellerUid
+            );
+        
+          if (!sellerActive) {
+            continue;
+          }
+        
+          // 30 DAY EXPIRY
+          if (!item.createdAt) {
+            continue;
+          }
+        
+          const createdTime =
+            item.createdAt
+              .toDate()
+              .getTime();
+        
+          const age =
+            now - createdTime;
+        
+          if (age >= EXPIRATION_TIME) {
+            continue;
+          }
+        
+          activeListings.push(item);
+        
+        }
+        
+        allListings =
+          activeListings;
 
               const createdTime =
                 item.createdAt
