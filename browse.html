@@ -251,44 +251,43 @@
 
   </section>
 
-   <section class="keyword-alerts">
+  <section class="keyword-alerts">
 
-  <div class="container">
-
-    <div class="alert-box">
-
-      <h3>Deal Alerts</h3>
-
+    <h2>
+      Deal Alerts
+    </h2>
+  
+    <div class="alert-form">
+  
       <input
         type="text"
         id="alertKeyword"
         placeholder="RTX 3060"
       >
-
+  
       <input
         type="number"
         id="alertPrice"
         placeholder="Max Price (€)"
+        min="1"
       >
-
+  
       <button id="addAlertBtn">
         Add Alert
       </button>
-
-      <div id="alertList"></div>
-
-      <h3 style="margin-top:20px;">
-        🔔 Matches
-        <span id="matchCount">0</span>
-      </h3>
-
-      <div id="matchList"></div>
-
+  
     </div>
-
-  </div>
-
-</section>
+  
+    <div id="alertList"></div>
+  
+    <h3>
+      Matches
+      (<span id="matchCount">0</span>)
+    </h3>
+  
+    <div id="matchList"></div>
+  
+  </section>
 
   <!-- LISTINGS -->
   <section class="listings">
@@ -407,30 +406,44 @@
       document.getElementById(
         "alertKeyword"
       );
-
+    
     const alertPrice =
       document.getElementById(
         "alertPrice"
       );
-
+    
     const addAlertBtn =
       document.getElementById(
         "addAlertBtn"
       );
-
+    
     const alertList =
       document.getElementById(
         "alertList"
       );
-
+    
     const matchList =
       document.getElementById(
         "matchList"
       );
-
+    
     const matchCount =
       document.getElementById(
         "matchCount"
+      );
+    
+    let alerts =
+      JSON.parse(
+        localStorage.getItem(
+          "dealAlerts"
+        ) || "[]"
+      );
+    
+    let matches =
+      JSON.parse(
+        localStorage.getItem(
+          "dealMatches"
+        ) || "[]"
       );
 
     let allListings = [];
@@ -1071,20 +1084,6 @@ ${!listingStatus.valid ? `
 
     }
 
-    let alerts =
-  JSON.parse(
-    localStorage.getItem(
-      "dealAlerts"
-    ) || "[]"
-  );
-
-let matches =
-  JSON.parse(
-    localStorage.getItem(
-      "dealMatches"
-    ) || "[]"
-  );
-
     
     // LOAD LISTINGS
     async function loadListings() {
@@ -1146,6 +1145,10 @@ let matches =
     
         allListings =
           activeListings;
+
+        cleanupMatches();
+        checkAlerts(allListings);
+        renderMatches();
     
         // PRODUCT FILTER
         productFilter.innerHTML = `
@@ -1186,15 +1189,6 @@ let matches =
     
         renderListings(allListings);
     
-        cleanupMatches();
-        renderMatches();
-    
-        checkAlerts(allListings);
-    
-        checkKeywordAlerts(
-          allListings
-        );
-    
       } catch (e) {
     
         console.error(e);
@@ -1208,7 +1202,73 @@ let matches =
       }
     
     }
+
+    function renderAlerts() {
+
+      alertList.innerHTML = "";
     
+      alerts.forEach(
+        (alert, index) => {
+    
+          const div =
+            document.createElement(
+              "div"
+            );
+    
+          div.className =
+            "alert-item";
+    
+          div.innerHTML = `
+    
+            <span>
+              ${alert.keyword}
+              ≤ €${alert.maxPrice}
+            </span>
+    
+            <button
+              class="remove-alert"
+              data-index="${index}"
+            >
+              ✕
+            </button>
+    
+          `;
+    
+          alertList.appendChild(div);
+    
+        }
+      );
+    
+      document
+        .querySelectorAll(
+          ".remove-alert"
+        )
+        .forEach(btn => {
+    
+          btn.addEventListener(
+            "click",
+            () => {
+    
+              alerts.splice(
+                Number(
+                  btn.dataset.index
+                ),
+                1
+              );
+    
+              localStorage.setItem(
+                "dealAlerts",
+                JSON.stringify(alerts)
+              );
+    
+              renderAlerts();
+    
+            }
+          );
+    
+        });
+    
+    }
 
     // EVENTS
     searchInput.addEventListener(
@@ -1241,280 +1301,240 @@ let matches =
       applyFilters
     );
 
-    function renderAlerts() {
-
-  alertList.innerHTML = "";
-
-  alerts.forEach(
-    (alert, index) => {
-
-      const div =
-        document.createElement(
-          "div"
-        );
-
-      div.innerHTML = `
-        ${alert.keyword}
-        ≤ €${alert.maxPrice}
-
-        <button
-          onclick="removeAlert(${index})"
-        >
-          X
-        </button>
-      `;
-
-      alertList.appendChild(
-        div
-      );
-
-    }
-  );
-
-}
-    window.removeAlert =
-function(index) {
-
-  alerts.splice(index, 1);
-
-  localStorage.setItem(
-    "dealAlerts",
-    JSON.stringify(alerts)
-  );
-
-  renderAlerts();
-
-};
     addAlertBtn.addEventListener(
-  "click",
-  async () => {
-
-    const keyword =
-      alertKeyword.value
-        .trim()
-        .toLowerCase();
-
-    const maxPrice =
-      Number(
-        alertPrice.value
-      );
-
-    if (!keyword || !maxPrice) {
-      return;
-    }
-
-    if (
-      Notification.permission
-      === "default"
-    ) {
-
-      await Notification.requestPermission();
-
-    }
-
-    alerts.push({
-
-      keyword,
-      maxPrice
-
-    });
-
-    localStorage.setItem(
-      "dealAlerts",
-      JSON.stringify(alerts)
-    );
-
-    renderAlerts();
-
-    alertKeyword.value = "";
-    alertPrice.value = "";
-
-  }
-);
-    function checkAlerts(listings) {
-
-  alerts.forEach(alert => {
-
-    listings.forEach(item => {
-
-      const title =
-        (
-          item.title || ""
-        ).toLowerCase();
-
-      const totalPrice =
-        Number(
-          item.totalPrice ||
-          item.price ||
-          0
-        );
-
-      if (
-        title.includes(
-          alert.keyword
-        ) &&
-        totalPrice <= alert.maxPrice
-      ) {
-
-        const id =
-          item.id +
-          "_" +
-          alert.keyword;
-
-        const alreadyExists =
-          matches.some(
-            x => x.id === id
+      "click",
+      async () => {
+    
+        const keyword =
+          alertKeyword.value
+            .trim()
+            .toLowerCase();
+    
+        const maxPrice =
+          Number(
+            alertPrice.value
           );
-
-        if (alreadyExists) {
+    
+        if (
+          !keyword ||
+          !maxPrice
+        ) {
           return;
         }
-
-        matches.push({
-
-          id,
-
-          listingId: item.id,
-
-          title: item.title,
-
-          price: totalPrice,
-
-          link: item.externalLink
-
-        });
-
+    
         if (
           Notification.permission
-          === "granted"
+          === "default"
         ) {
-
-          new Notification(
-            "Matching Deal Found!",
-            {
-
-              body:
-                `${item.title} (€${totalPrice})`
-
-            }
-          );
-
+    
+          await Notification.requestPermission();
+    
         }
-
+    
+        alerts.push({
+    
+          keyword,
+          maxPrice
+    
+        });
+    
+        localStorage.setItem(
+          "dealAlerts",
+          JSON.stringify(alerts)
+        );
+    
+        renderAlerts();
+    
+        alertKeyword.value = "";
+        alertPrice.value = "";
+    
       }
-
-    });
-
-  });
-
-  localStorage.setItem(
-    "dealMatches",
-    JSON.stringify(matches)
-  );
-
-  renderMatches();
-
-}
-    function renderMatches() {
-
-  matchList.innerHTML = "";
-
-  matchCount.textContent =
-    matches.length;
-
-  matches
-    .slice()
-    .reverse()
-    .forEach((match) => {
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        "match-item";
-
-      div.innerHTML = `
-
-        <div>
-
-          <a
-            href="${match.link}"
-            target="_blank"
-          >
-            ${match.title}
-          </a>
-
-          <div>
-            €${match.price}
-          </div>
-
-        </div>
-
-        <button
-          class="remove-match-btn"
-          data-id="${match.id}"
-        >
-          ✕
-        </button>
-
-      `;
-
-      matchList.appendChild(div);
-
-    });
-
-  document
-    .querySelectorAll(
-      ".remove-match-btn"
-    )
-    .forEach(btn => {
-
-      btn.addEventListener(
-        "click",
-        () => {
-
-          matches =
-            matches.filter(
-              x => x.id !== btn.dataset.id
-            );
-
-          localStorage.setItem(
-            "dealMatches",
-            JSON.stringify(matches)
-          );
-
-          renderMatches();
-
-        }
-      );
-
-    });
-
-}
-function cleanupMatches() {
-
-  matches =
-    matches.filter(match =>
-
-      allListings.some(
-        listing =>
-          listing.id ===
-          match.listingId
-      )
-
     );
 
-  localStorage.setItem(
-    "dealMatches",
-    JSON.stringify(matches)
-  );
+    function checkAlerts(listings) {
 
-}
+      alerts.forEach(alert => {
+    
+        listings.forEach(item => {
+    
+          const title =
+            (
+              item.title || ""
+            ).toLowerCase();
+    
+          const totalPrice =
+            Number(
+              item.totalPrice ||
+              item.price ||
+              0
+            );
+    
+          if (
+            title.includes(
+              alert.keyword
+            ) &&
+            totalPrice <= alert.maxPrice
+          ) {
+    
+            const id =
+              item.id +
+              "_" +
+              alert.keyword;
+    
+            const exists =
+              matches.some(
+                x => x.id === id
+              );
+    
+            if (exists) {
+              return;
+            }
+    
+            matches.push({
+    
+              id,
+    
+              listingId:
+                item.id,
+    
+              title:
+                item.title,
+    
+              price:
+                totalPrice,
+    
+              link:
+                item.externalLink
+    
+            });
+    
+            if (
+              Notification.permission
+              === "granted"
+            ) {
+    
+              new Notification(
+                "Matching Deal Found",
+                {
+                  body:
+                    `${item.title} (€${totalPrice})`
+                }
+              );
+    
+            }
+    
+          }
+    
+        });
+    
+      });
+    
+      localStorage.setItem(
+        "dealMatches",
+        JSON.stringify(matches)
+      );
+    
+    }
+
+    function renderMatches() {
+
+      matchList.innerHTML = "";
+    
+      matchCount.textContent =
+        matches.length;
+    
+      matches
+        .slice()
+        .reverse()
+        .forEach(match => {
+    
+          const div =
+            document.createElement(
+              "div"
+            );
+    
+          div.className =
+            "match-item";
+    
+          div.innerHTML = `
+    
+            <a
+              href="${match.link}"
+              target="_blank"
+            >
+              ${match.title}
+            </a>
+    
+            <span>
+              €${match.price}
+            </span>
+    
+            <button
+              class="remove-match"
+              data-id="${match.id}"
+            >
+              ✕
+            </button>
+    
+          `;
+    
+          matchList.appendChild(div);
+    
+        });
+    
+      document
+        .querySelectorAll(
+          ".remove-match"
+        )
+        .forEach(btn => {
+    
+          btn.addEventListener(
+            "click",
+            () => {
+    
+              matches =
+                matches.filter(
+                  x =>
+                    x.id !==
+                    btn.dataset.id
+                );
+    
+              localStorage.setItem(
+                "dealMatches",
+                JSON.stringify(matches)
+              );
+    
+              renderMatches();
+    
+            }
+          );
+    
+        });
+    
+    }
+
+    function cleanupMatches() {
+
+      matches =
+        matches.filter(match =>
+    
+          allListings.some(
+            listing =>
+              listing.id ===
+              match.listingId
+          )
+    
+        );
+    
+      localStorage.setItem(
+        "dealMatches",
+        JSON.stringify(matches)
+      );
+    
+    }
 
     // LOAD
     loadListings();
-    renderAlerts();
-    renderMatches();
 
     // MOBILE MENU
     const hamburgerBtn =
@@ -1541,6 +1561,11 @@ function cleanupMatches() {
 
       }
     );
+    loadListings();
+
+    renderAlerts();
+
+    renderMatches();
 
   </script>
 
