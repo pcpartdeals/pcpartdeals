@@ -1207,19 +1207,7 @@ let matches =
         
         allListings =
           activeListings;
-
-              const createdTime =
-                item.createdAt
-                  .toDate()
-                  .getTime();
-
-              const age =
-                now - createdTime;
-
-              return age < EXPIRATION_TIME;
-
-            });
-
+        
         // PRODUCT FILTER
         const uniqueProducts =
           [
