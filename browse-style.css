@@ -453,7 +453,7 @@ select:focus{
   font-weight: 600;
 }
 
-.alert-add-btn {
+.addAlertBtn {
   background: #2563eb;
   color: white;
 }
