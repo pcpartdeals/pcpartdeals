@@ -710,13 +710,19 @@
           
             });
                     
-          interests:
-            [...document.querySelectorAll(
-              ".interest-checkbox:checked"
-            )]
-              .map(
-                box => box.value
-              );
+          const interests =
+            data.interests || [];
+          
+          document
+            .querySelectorAll(
+              ".interest-checkbox"
+            )
+            .forEach(box => {
+          
+              box.checked =
+                interests.includes(
+                  box.value
+                );
           
             });
         }
@@ -797,11 +803,11 @@
               username,
 
               interests:
-                [...document.getElementById(
-                  "interests"
-                ).selectedOptions]
+                [...document.querySelectorAll(
+                  ".interest-checkbox:checked"
+                )]
                   .map(
-                    option => option.value
+                    box => box.value
                   )
 
             },
