@@ -712,6 +712,7 @@ async function checkListingStatus(url) {
 const affiliateAds = [
 
   {
+    type: "card",
     title: "ASUS RTX 3050 6GB OC for sale",
     description: "Great card for budget gaming PCs and consumes very low power",
     image: "https://m.media-amazon.com/images/I/81mwcITtHBL._AC_SL1500_.jpg",
@@ -719,6 +720,7 @@ const affiliateAds = [
   },
 
   {
+    type: "card",
     title: "Ryzen 5 5500 CPU Deal",
     description: "Save on Ryzen processors this week.",
     image: "https://m.media-amazon.com/images/I/51So7GoGvxL._AC_SL1384_.jpg",
@@ -726,6 +728,7 @@ const affiliateAds = [
   },
 
   {
+    type: "card",
     title: "PSU Pick of the week: MSI MAG A650BN",
     description: "Buy our favourite power supplies of this week.",
     image: "https://m.media-amazon.com/images/I/81eLlIQ5PsL._AC_SL1500_.jpg",
@@ -733,6 +736,7 @@ const affiliateAds = [
   },
 
   {
+    type: "card",
     title: "Our favourite PC building tools this week: iFixit Essentials kit",
     description: "Take your PC building hobby to the next level with iFixit kits!",
     image: "https://m.media-amazon.com/images/I/81VQXECnAwS._AC_SL1500_.jpg",
@@ -740,6 +744,7 @@ const affiliateAds = [
   },
 
   {
+    type: "card",
     title: "RTX 5060 TI GPU deals",
     description: "Build your next Gaming PC with the modern RTX cards!",
     image: "https://m.media-amazon.com/images/I/71YneRF-W9L._AC_SL1500_.jpg",
@@ -747,10 +752,28 @@ const affiliateAds = [
   },
 
   {
+    type: "card",
     title: "AMD RX 9070 XT deals are waiting!",
     description: "Browse great RX 9070 XT deals of this week!",
     image: "https://m.media-amazon.com/images/I/61ch6FkfsXL._AC_SL1200_.jpg",
     link: "https://amzn.to/4e5VBI3"
+  },
+  // BANNER ADS
+  {
+    type: "banner",
+    html: `
+      <a href="https://s.click.aliexpress.com/e/_c3fWMyWz"
+         target="_blank"
+         rel="nofollow sponsored noopener noreferrer">
+
+        <img
+          src="https://ae01.alicdn.com/kf/S13f6e65bfa4340cd879f61f20ee98b3fd.jpg_140x140.jpg"
+          alt="AliExpress Deals"
+          style="width:100%;height:auto;border-radius:12px;"
+        >
+
+      </a>
+    `
   }
 
   
@@ -761,7 +784,8 @@ function getRandomAffiliate() {
 
   return affiliateAds[
     Math.floor(
-      Math.random() * affiliateAds.length
+      Math.random() *
+      affiliateAds.length
     )
   ];
 
@@ -921,52 +945,65 @@ ${!listingStatus.valid ? `
 
       // RENDER AFFILIATE
       function renderAffiliateAd() {
-
+      
         const affiliate =
           getRandomAffiliate();
-
+      
+        // BANNER ADS
+        if (affiliate.type === "banner") {
+      
+          adCard.innerHTML = `
+            <div class="affiliate-banner">
+              ${affiliate.html}
+            </div>
+          `;
+      
+          return;
+        }
+      
+        // CARD ADS
         adCard.innerHTML = `
-
+      
           <a
             href="${affiliate.link}"
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
             class="affiliate-ad"
           >
-
+      
             <img
               src="${affiliate.image}"
               alt="${escapeHtml(affiliate.title)}"
               class="affiliate-image"
               loading="lazy"
             >
-
+      
             <div class="affiliate-content">
-
+      
               <span class="affiliate-label">
                 Sponsored
               </span>
-
+      
               <h3>
                 ${escapeHtml(affiliate.title)}
               </h3>
-
+      
               <p>
                 ${escapeHtml(affiliate.description)}
               </p>
-
+      
               <div class="affiliate-disclaimer">
                 #AD
               </div>
-
+      
             </div>
-
+      
           </a>
-
+      
         `;
-
       }
 
+      
       const useAffiliateDirectly =
         affiliateAds.length > 0 &&
         shouldShowAffiliate();
