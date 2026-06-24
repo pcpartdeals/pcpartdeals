@@ -167,6 +167,7 @@
         <a href="https://pcpartdeals.eu/browse">Marketplace</a>
         <a href="https://pcpartdeals.eu/post-listing">Sell Parts</a>
         <a href="https://pcpartdeals.eu/privacy-policy">Privacy Policy</a>
+        <a href="https://pcpartdeals.eu/terms-of-service">Terms</a>
         <a href="https://linktr.ee/pcpartdeals">Contact</a>
 
         <div class="mobile-buttons">
@@ -207,6 +208,11 @@
           Find GPUs, CPUs, RAM, motherboards, gaming PCs and more.
           Sell your old hardware quickly or discover great deals from trusted sellers.
         </p>
+
+        <form class="home-search" id="homeSearchForm">
+          <input id="homeSearchInput" type="search" placeholder="Search GPUs, CPUs, RAM, gaming PCs..." aria-label="Search products">
+          <button type="submit">Search deals</button>
+        </form>
 
         <div class="hero-buttons">
           <a href="https://pcpartdeals.eu/browse" class="btn btn-blue large-btn">Browse Parts</a>
@@ -930,5 +936,18 @@ document.getElementById(
   }(document, 'script'));
 </script>
 <script type="text/javascript" src="https://s.skimresources.com/js/304454X1792632.skimlinks.js"></script>
+<script>
+  const homeSearchForm = document.getElementById("homeSearchForm");
+  const homeSearchInput = document.getElementById("homeSearchInput");
+  if (homeSearchForm && homeSearchInput) {
+    homeSearchForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const query = homeSearchInput.value.trim();
+      window.location.href = query
+        ? `https://pcpartdeals.eu/browse.html?q=${encodeURIComponent(query)}`
+        : "https://pcpartdeals.eu/browse";
+    });
+  }
+</script>
 </body>
 </html>
