@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service | PCPartDeals</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="https://pcpartdeals.eu/images/favicon.ico" />
+</head>
+<body>
+  <header class="header">
+    <div class="container nav-container">
+      <a href="https://pcpartdeals.eu/" class="logo">PC<span>PartDeals</span></a>
+      <nav class="nav" id="navMenu">
+        <a href="https://pcpartdeals.eu/">Home</a>
+        <a href="https://pcpartdeals.eu/browse">Marketplace</a>
+        <a href="https://pcpartdeals.eu/post-listing">Sell Parts</a>
+        <a href="https://pcpartdeals.eu/privacy-policy">Privacy Policy</a>
+        <a href="https://pcpartdeals.eu/terms-of-service">Terms</a>
+      </nav>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="terms-page">
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content terms-hero">
+          <div class="tag">Legal</div>
+          <h1>Terms of Service</h1>
+          <p>These terms explain how PCPartDeals works as a discovery platform for computer hardware listings and affiliate offers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features terms-section">
+      <div class="container terms-card">
+        <p><strong>Last updated:</strong> June 24, 2026</p>
+        <h2>1. Using PCPartDeals</h2>
+        <p>PCPartDeals helps users discover PC hardware listings, marketplace links, product information, and sponsored affiliate offers. You agree to use the site lawfully and not to abuse, scrape, attack, or interfere with the service.</p>
+        <h2>2. Marketplace listings</h2>
+        <p>Many listings link to third-party marketplaces or sellers. PCPartDeals does not own those items, process those payments, guarantee availability, or control seller behavior. Always review the original marketplace page before buying.</p>
+        <h2>3. User listings and accounts</h2>
+        <p>If you create an account or post a listing, you are responsible for accurate information, lawful content, and keeping your login details secure. We may remove listings that appear fraudulent, unsafe, spammy, expired, or against these terms.</p>
+        <h2>4. Affiliate and sponsored links</h2>
+        <p>Some cards and links may be advertisements or affiliate links. PCPartDeals may earn a commission from qualifying purchases, at no extra cost to you.</p>
+        <h2>5. No professional advice</h2>
+        <p>Prices, availability, compatibility, and condition details can change. PCPartDeals is provided for general discovery and comparison only, not as financial, legal, or technical advice.</p>
+        <h2>6. Limitation of liability</h2>
+        <p>The site is provided “as is.” To the maximum extent allowed by law, PCPartDeals is not liable for third-party marketplace issues, seller disputes, unavailable listings, inaccurate product data, or indirect losses.</p>
+        <h2>7. Changes</h2>
+        <p>We may update these terms as the service changes. Continued use of PCPartDeals after changes means you accept the updated terms.</p>
+        <h2>8. Contact</h2>
+        <p>Questions about these terms can be sent through our contact links on the site.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div><a href="https://pcpartdeals.eu/" class="logo">PC<span>PartDeals</span></a><p class="footer-text">As an Amazon Associate I earn from qualifying purchases.</p></div>
+      <div class="footer-links"><a href="https://pcpartdeals.eu/">Home</a><a href="https://pcpartdeals.eu/browse">Browse</a><a href="https://pcpartdeals.eu/privacy-policy">Privacy</a></div>
+    </div>
+  </footer>
+  <script>
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const navMenu = document.getElementById("navMenu");
+    hamburgerBtn?.addEventListener("click", () => navMenu?.classList.toggle("active"));
+  </script>
+</body>
+</html>

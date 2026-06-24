@@ -225,177 +225,82 @@
 
   </section>
 
-  <!-- FILTERS -->
-  <section class="filters">
-
-    <div class="container">
-
-      <div class="filter-grid">
-
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Search product (e.g. Ryzen 5 5500)"
-        />
-
-        <select id="productFilter">
-
-          <option value="">
-            All Products
-          </option>
-
-        </select>
-
-        <select id="marketplaceFilter">
-
-          <option value="">
-            All Marketplaces
-          </option>
-
-          <option value="eBay">
-            eBay
-          </option>
-
-          <option value="Vinted">
-            Vinted
-          </option>
-
-          <option value="Kleinanzeigen">
-            Kleinanzeigen
-          </option>
-
-          <option value="Leboncoin">
-            Leboncoin
-          </option>
-
-          <option value="Wallapop">
-            Wallapop
-          </option>
-
-          <option value="Yaga">
-            Yaga
-          </option>
-
-          <option value="Osta">
-            Osta
-          </option>
-
-        </select>
-
-        <select id="conditionFilter">
-
-          <option value="">
-            All Conditions
-          </option>
-
-          <option value="New">
-            New
-          </option>
-
-          <option value="Like-New">
-            Like-New
-          </option>
-
-          <option value="Used">
-            Used
-          </option>
-
-          <option value="Satisfactory">
-            Satisfactory
-          </option>
-
-          <option value="Does Not Work (Tested)">
-            Does Not Work (Tested)
-          </option>
-
-          <option value="Does Not Work (Untested)">
-            Does Not Work (Untested)
-          </option>
-
-        </select>
-
-        <select id="shippingFilter">
-
-          <option value="">
-            Shipping Options
-          </option>
-
-          <option value="free">
-            Free Shipping
-          </option>
-
-          <option value="paid">
-            Paid Shipping
-          </option>
-
-        </select>
-
-        <select id="sortPrice">
-
-          <option value="">
-            Sort by price
-          </option>
-
-          <option value="asc">
-            Lowest first
-          </option>
-
-          <option value="desc">
-            Highest first
-          </option>
-
-          <option value="totalAsc">
-            Lowest total price
-          </option>
-
-          <option value="totalDesc">
-            Highest total price
-          </option>
-
-        </select>
-
-      </div>
-
+  <!-- BROWSE CONTROLS -->
+  <section class="browse-controls">
+    <div class="container controls-bar">
+      <button class="control-btn" id="filtersBtn" type="button">Filters</button>
+      <label class="browse-search" for="searchInput">
+        <span>Search</span>
+        <input type="text" id="searchInput" placeholder="Search product (e.g. Ryzen 5 5500)" />
+      </label>
+      <button class="control-btn alert-control" id="alertsBtn" type="button">
+        Alerts <span id="matchCountBadge">0</span>
+      </button>
     </div>
-
   </section>
 
-  <section class="keyword-alerts">
-
-    <h2>
-      Deal Alerts
-    </h2>
-  
-    <div class="alert-form">
-  
-      <input
-        type="text"
-        id="alertKeyword"
-        placeholder="RTX 3060"
-      >
-  
-      <input
-        type="number"
-        id="alertPrice"
-        placeholder="Max Price (€)"
-        min="1"
-      >
-  
-      <button id="addAlertBtn">
-        Add Alert
-      </button>
-  
+  <div class="drawer-overlay" id="filtersOverlay" hidden></div>
+  <aside class="filter-drawer" id="filterDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Refine deals</p>
+        <h2>Filters</h2>
+      </div>
+      <button class="icon-btn" id="closeFiltersBtn" type="button" aria-label="Close filters">✕</button>
     </div>
-  
+    <div class="filter-grid">
+      <label>Product
+        <select id="productFilter"><option value="">All Products</option></select>
+      </label>
+      <label>Marketplace
+        <select id="marketplaceFilter">
+          <option value="">All Marketplaces</option>
+          <option value="eBay">eBay</option><option value="Vinted">Vinted</option><option value="Kleinanzeigen">Kleinanzeigen</option><option value="Leboncoin">Leboncoin</option><option value="Wallapop">Wallapop</option><option value="Yaga">Yaga</option><option value="Osta">Osta</option>
+        </select>
+      </label>
+      <label>Country
+        <select id="countryFilter">
+          <option value="">All Countries</option>
+          <option value="EU">European Union / Multi-country</option>
+          <option value="France">France</option>
+          <option value="Germany">Germany</option>
+          <option value="Spain">Spain</option>
+          <option value="Estonia">Estonia</option>
+          <option value="United Kingdom">United Kingdom</option>
+        </select>
+      </label>
+      <label>Condition
+        <select id="conditionFilter">
+          <option value="">All Conditions</option><option value="New">New</option><option value="Like-New">Like-New</option><option value="Used">Used</option><option value="Satisfactory">Satisfactory</option><option value="Does Not Work (Tested)">Does Not Work (Tested)</option><option value="Does Not Work (Untested)">Does Not Work (Untested)</option>
+        </select>
+      </label>
+      <label>Shipping
+        <select id="shippingFilter"><option value="">Shipping Options</option><option value="free">Free Shipping</option><option value="paid">Paid Shipping</option></select>
+      </label>
+      <label>Sort
+        <select id="sortPrice"><option value="">Newest first</option><option value="asc">Lowest first</option><option value="desc">Highest first</option><option value="totalAsc">Lowest total price</option><option value="totalDesc">Highest total price</option></select>
+      </label>
+    </div>
+    <button class="view-btn full-width" id="clearFiltersBtn" type="button">Clear filters</button>
+  </aside>
+
+  <div class="modal-overlay" id="alertsOverlay" hidden></div>
+  <section class="alerts-modal" id="alertsModal" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Saved searches</p>
+        <h2>Deal Alerts</h2>
+      </div>
+      <button class="icon-btn" id="closeAlertsBtn" type="button" aria-label="Close alerts">✕</button>
+    </div>
+    <div class="alert-form">
+      <input type="text" id="alertKeyword" placeholder="RTX 3060">
+      <input type="number" id="alertPrice" placeholder="Max Price (€)" min="1">
+      <button id="addAlertBtn" type="button">Add Alert</button>
+    </div>
     <div id="alertList"></div>
-  
-    <h3>
-      Matches
-      (<span id="matchCount">0</span>)
-    </h3>
-  
+    <h3>Matches (<span id="matchCount">0</span>)</h3>
     <div id="matchList"></div>
-  
   </section>
 
   <!-- LISTINGS -->
@@ -526,6 +431,11 @@
         "marketplaceFilter"
       );
 
+    const countryFilter =
+      document.getElementById(
+        "countryFilter"
+      );
+
     const conditionFilter =
       document.getElementById(
         "conditionFilter"
@@ -586,6 +496,30 @@
       );
 
     let allListings = [];
+    let filteredListings = [];
+    let visibleCount = 18;
+    const PAGE_SIZE = 18;
+
+    const marketplaceCountries = {
+      eBay: ["EU", "Germany", "France", "Spain", "United Kingdom"],
+      Vinted: ["EU", "France", "Germany", "Spain"],
+      Kleinanzeigen: ["Germany"],
+      Leboncoin: ["France"],
+      Wallapop: ["Spain"],
+      Yaga: ["Estonia"],
+      Osta: ["Estonia"]
+    };
+
+    function getMarketplaceCountry(item) {
+      return item.country || item.marketplaceCountry || item.locationCountry || "";
+    }
+
+    function marketplaceMatchesCountry(item, country) {
+      if (!country) return true;
+      const itemCountry = getMarketplaceCountry(item);
+      if (itemCountry && itemCountry.toLowerCase() === country.toLowerCase()) return true;
+      return (marketplaceCountries[item.marketplace] || []).includes(country);
+    }
     
     // CHECK IF LISTING URL LOOKS VALID
 async function checkListingStatus(url) {
@@ -895,7 +829,7 @@ function shouldShowAffiliate() {
 }
 
 // RENDER
-async function renderListings(data) {
+async function renderListings(data, append = false) {
 
   if (!data.length) {
 
@@ -908,7 +842,13 @@ async function renderListings(data) {
     return;
   }
 
-  listingGrid.innerHTML = "";
+  if (!append) {
+    listingGrid.innerHTML = "";
+  }
+
+  const startIndex = append ? listingGrid.querySelectorAll(
+    ".listing-card"
+  ).length : 0;
 
   for (const [index, item] of data.entries()) {
 
@@ -1031,7 +971,7 @@ ${!listingStatus.valid ? `
     listingGrid.appendChild(card);
 
     // AD EVERY 5 LISTINGS
-    if ((index + 1) % 5 === 0) {
+    if ((startIndex + index + 1) % 5 === 0) {
 
       const adCard =
         document.createElement("div");
@@ -1168,6 +1108,13 @@ ${!listingStatus.valid ? `
 
   }
 
+  if (visibleCount < filteredListings.length) {
+    const sentinel = document.createElement("div");
+    sentinel.className = "loading load-more-sentinel";
+    sentinel.textContent = "Scroll for more deals";
+    listingGrid.appendChild(sentinel);
+  }
+
   // REPORT BUTTON EVENTS
   document
     .querySelectorAll(".report-btn")
@@ -1203,6 +1150,9 @@ ${!listingStatus.valid ? `
 
       const marketplace =
         marketplaceFilter.value;
+
+      const country =
+        countryFilter.value;
 
       const condition =
         conditionFilter.value;
@@ -1247,6 +1197,16 @@ ${!listingStatus.valid ? `
 
             x.marketplace === marketplace
 
+          );
+
+      }
+
+      // COUNTRY
+      if (country) {
+
+        filtered =
+          filtered.filter(x =>
+            marketplaceMatchesCountry(x, country)
           );
 
       }
@@ -1331,7 +1291,9 @@ ${!listingStatus.valid ? `
 
       }
 
-      renderListings(filtered);
+      filteredListings = filtered;
+      visibleCount = PAGE_SIZE;
+      renderListings(filteredListings.slice(0, visibleCount));
 
     }
 
@@ -1437,7 +1399,7 @@ ${!listingStatus.valid ? `
     
         });
     
-        renderListings(allListings);
+        applyFilters();
     
       } catch (e) {
     
@@ -1532,6 +1494,11 @@ ${!listingStatus.valid ? `
     );
 
     marketplaceFilter.addEventListener(
+      "change",
+      applyFilters
+    );
+
+    countryFilter.addEventListener(
       "change",
       applyFilters
     );
@@ -1692,6 +1659,9 @@ ${!listingStatus.valid ? `
     
       matchCount.textContent =
         matches.length;
+      if (matchCountBadge) {
+        matchCountBadge.textContent = matches.length;
+      }
     
       matches
         .slice()
@@ -1783,6 +1753,48 @@ ${!listingStatus.valid ? `
     
     }
 
+
+    const filtersBtn = document.getElementById("filtersBtn");
+    const filterDrawer = document.getElementById("filterDrawer");
+    const filtersOverlay = document.getElementById("filtersOverlay");
+    const closeFiltersBtn = document.getElementById("closeFiltersBtn");
+    const clearFiltersBtn = document.getElementById("clearFiltersBtn");
+    const alertsBtn = document.getElementById("alertsBtn");
+    const alertsModal = document.getElementById("alertsModal");
+    const alertsOverlay = document.getElementById("alertsOverlay");
+    const closeAlertsBtn = document.getElementById("closeAlertsBtn");
+    const matchCountBadge = document.getElementById("matchCountBadge");
+
+    function openFilters() { filterDrawer.classList.add("open"); filterDrawer.setAttribute("aria-hidden", "false"); filtersOverlay.hidden = false; }
+    function closeFilters() { filterDrawer.classList.remove("open"); filterDrawer.setAttribute("aria-hidden", "true"); filtersOverlay.hidden = true; }
+    function openAlerts() { alertsModal.classList.add("open"); alertsModal.setAttribute("aria-hidden", "false"); alertsOverlay.hidden = false; }
+    function closeAlerts() { alertsModal.classList.remove("open"); alertsModal.setAttribute("aria-hidden", "true"); alertsOverlay.hidden = true; }
+
+    filtersBtn.addEventListener("click", openFilters);
+    closeFiltersBtn.addEventListener("click", closeFilters);
+    filtersOverlay.addEventListener("click", closeFilters);
+    alertsBtn.addEventListener("click", openAlerts);
+    closeAlertsBtn.addEventListener("click", closeAlerts);
+    alertsOverlay.addEventListener("click", closeAlerts);
+    clearFiltersBtn.addEventListener("click", () => {
+      productFilter.value = ""; marketplaceFilter.value = ""; countryFilter.value = "";
+      conditionFilter.value = ""; shippingFilter.value = ""; sortPrice.value = ""; searchInput.value = "";
+      applyFilters();
+    });
+
+    window.addEventListener("scroll", () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+      if (!nearBottom || visibleCount >= filteredListings.length) return;
+      const oldCount = visibleCount;
+      visibleCount += PAGE_SIZE;
+      document.querySelector(".load-more-sentinel")?.remove();
+      renderListings(filteredListings.slice(oldCount, visibleCount), true);
+    }, { passive: true });
+
+    const params = new URLSearchParams(window.location.search);
+    const queryParam = params.get("q") || params.get("search");
+    if (queryParam) { searchInput.value = queryParam; }
+
     // LOAD
     loadListings();
 
@@ -1811,7 +1823,6 @@ ${!listingStatus.valid ? `
 
       }
     );
-    loadListings();
 
     renderAlerts();
 
