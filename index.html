@@ -191,171 +191,226 @@
   </header>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="container hero-grid">
+  <section class="hero home-hero">
+    <div class="container">
+      <div class="home-hero-panel">
+        <div class="hero-content">
+          <div class="tag">Buy & Sell Computer Parts Easily</div>
 
-      <div class="hero-content">
-        <div class="tag">
-          Buy & Sell Computer Parts Easily
-        </div>
-
-        <h1>
-          The modern marketplace for
-          <span>PC hardware</span>
-        </h1>
-
-        <p>
-          Find GPUs, CPUs, RAM, motherboards, gaming PCs and more.
-          Sell your old hardware quickly or discover great deals from trusted sellers.
-        </p>
-
-        <form class="home-search" id="homeSearchForm">
-          <input id="homeSearchInput" type="search" placeholder="Search GPUs, CPUs, RAM, gaming PCs..." aria-label="Search products">
-          <button type="submit">Search deals</button>
-        </form>
-
-        <div class="hero-buttons">
-          <a href="https://pcpartdeals.eu/browse" class="btn btn-blue large-btn">Browse Parts</a>
-          <a href="https://pcpartdeals.eu/post-listing" class="btn btn-green large-btn">Sell Hardware</a>
-        </div>
-
-       <div class="hero-stats">
-
-  <div class="stat-card">
-    <h3 id="listingsCounter">
-      0
-    </h3>
-    <p>Listings in our database</p>
-  </div>
-
-  <div class="stat-card">
-    <h3 id="usersCounter">
-      0
-    </h3>
-    <p>Users</p>
-  </div>
-
-  <div class="stat-card">
-    <h3>24/7</h3>
-    <p>Marketplace</p>
-  </div>
-
-</div>
-
-<script type="module">
-
-  import { initializeApp }
-  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-
-  import {
-    getFirestore,
-    collection,
-    getCountFromServer
-  }
-  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
-  // FIREBASE CONFIG
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
-    authDomain: "pcpartdealseu.firebaseapp.com",
-    projectId: "pcpartdealseu",
-    storageBucket: "pcpartdealseu.firebasestorage.app",
-    messagingSenderId: "912036519057",
-    appId: "1:912036519057:web:cde4d266c53c2229ad3330",
-    measurementId: "G-FPQ8YQ9EM0"
-  };
-
-  // INIT
-  const app =
-    initializeApp(firebaseConfig);
-
-  const db =
-    getFirestore(app);
-
-  // ELEMENTS
-  const usersCounter =
-    document.getElementById(
-      "usersCounter"
-    );
-
-  const listingsCounter =
-    document.getElementById(
-      "listingsCounter"
-    );
-
-  // LOAD COUNTS
-  async function loadCounts() {
-
-    try {
-
-      // USERS
-      const usersSnap =
-        await getCountFromServer(
-          collection(
-            db,
-            "userSettings"
-          )
-        );
-
-      usersCounter.textContent =
-        usersSnap.data().count;
-
-      // LISTINGS
-      const listingsSnap =
-        await getCountFromServer(
-          collection(
-            db,
-            "listings"
-          )
-        );
-
-      listingsCounter.textContent =
-        listingsSnap.data().count;
-
-    } catch (error) {
-
-      console.error(error);
-
-      usersCounter.textContent =
-        "?";
-
-      listingsCounter.textContent =
-        "?";
-
-    }
-
-  }
-
-  loadCounts();
-
-</script>
-
-      <div class="hero-image">
-        <div class="floating-card top-card">
-          <p>Gaming PC with RX 580</p>
-          <span>€365</span>
-        </div>
-
-        <div class="main-card">
-          <div class="circle"></div>
-
-          <h2>Gaming Hardware</h2>
+          <h1>
+            The modern marketplace for
+            <span>PC hardware</span>
+          </h1>
 
           <p>
-            Buy and sell modern and used PC components with ease.
+            Find GPUs, CPUs, RAM, motherboards, gaming PCs and more.
+            Sell your old hardware quickly or discover great deals from trusted sellers.
           </p>
 
-          <a href="https://pcpartdeals.eu/browse" class="btn btn-red">Popular Deals</a>
+          <form class="home-search" id="homeSearchForm">
+            <img src="icons/search-svgrepo-com.svg" alt="" aria-hidden="true">
+            <input id="homeSearchInput" type="search" placeholder="Search GPUs, CPUs, RAM, gaming PCs..." aria-label="Search products">
+            <button type="submit">Search deals</button>
+          </form>
+
+          <div class="hero-buttons">
+            <a href="https://pcpartdeals.eu/browse" class="btn btn-blue large-btn">
+              <img src="icons/columns-svgrepo-com.svg" alt="" aria-hidden="true">
+              Browse Parts
+            </a>
+            <a href="https://pcpartdeals.eu/post-listing" class="btn btn-green large-btn">
+              <img src="icons/add-square-svgrepo-com.svg" alt="" aria-hidden="true">
+              Sell Hardware
+            </a>
+          </div>
         </div>
 
-        <div class="floating-card bottom-card">
-          <p>Gaming PC with GTX 1050 TI</p>
-          <span>€315</span>
+        <div class="hero-analytics" aria-label="Marketplace analytics">
+          <div class="analytics-heading">
+            <div>
+              <span>Marketplace overview</span>
+              <h2>Live deal analytics</h2>
+            </div>
+            <img src="icons/chart-svgrepo-com.svg" alt="" aria-hidden="true">
+          </div>
+
+          <div class="analytics-chart" aria-hidden="true">
+            <span style="--bar-height: 38%"></span>
+            <span style="--bar-height: 55%"></span>
+            <span style="--bar-height: 45%"></span>
+            <span style="--bar-height: 72%"></span>
+            <span style="--bar-height: 62%"></span>
+            <span style="--bar-height: 88%"></span>
+            <span style="--bar-height: 78%"></span>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-card">
+              <img src="icons/tag-plus-svgrepo-com.svg" alt="" aria-hidden="true">
+              <h3 id="listingsCounter">0</h3>
+              <p>Listings in our database</p>
+            </div>
+            <div class="stat-card">
+              <img src="icons/user-2-svgrepo-com.svg" alt="" aria-hidden="true">
+              <h3 id="usersCounter">0</h3>
+              <p>Users</p>
+            </div>
+            <div class="stat-card">
+              <img src="icons/notifications-alert-svgrepo-com.svg" alt="" aria-hidden="true">
+              <h3>24/7</h3>
+              <p>Marketplace</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED LISTINGS -->
+  <section class="home-catalog">
+    <div class="container">
+      <div class="catalog-heading">
+        <div>
+          <p class="catalog-kicker">Fresh marketplace picks</p>
+          <h2>Featured GPU & CPU deals</h2>
+        </div>
+        <a href="https://pcpartdeals.eu/browse" class="btn btn-blue">
+          See all products
+          <img src="icons/link-svgrepo-com.svg" alt="" aria-hidden="true">
+        </a>
+      </div>
+
+      <div class="home-listing-grid" id="homeListingGrid" aria-live="polite">
+        <div class="home-listing-loading">Loading featured listings...</div>
+      </div>
+
+      <div class="catalog-heading category-heading">
+        <div>
+          <p class="catalog-kicker">Find your next upgrade</p>
+          <h2>Shop by category</h2>
         </div>
       </div>
 
+      <div class="home-category-grid">
+        <a class="home-category-card category-blue" href="https://pcpartdeals.eu/browse?q=graphics%20card">
+          <img src="icons/graph-svgrepo-com.svg" alt="" aria-hidden="true">
+          <div>
+            <h3>Graphics Cards</h3>
+            <p>NVIDIA & AMD GPUs</p>
+            <span>View GPU deals</span>
+          </div>
+        </a>
+        <a class="home-category-card category-green" href="https://pcpartdeals.eu/browse?q=processor">
+          <img src="icons/settings-svgrepo-com.svg" alt="" aria-hidden="true">
+          <div>
+            <h3>Processors</h3>
+            <p>Intel & Ryzen CPUs</p>
+            <span>View CPU deals</span>
+          </div>
+        </a>
+        <a class="home-category-card category-red" href="https://pcpartdeals.eu/browse?q=gaming%20pc">
+          <img src="icons/columns-svgrepo-com.svg" alt="" aria-hidden="true">
+          <div>
+            <h3>Gaming PCs</h3>
+            <p>Prebuilt & custom systems</p>
+            <span>View gaming PCs</span>
+          </div>
+        </a>
+      </div>
     </div>
   </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getCountFromServer,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9SrAC073Fhn3Z_2vZpqlX25HLIGFuB9A",
+      authDomain: "pcpartdealseu.firebaseapp.com",
+      projectId: "pcpartdealseu",
+      storageBucket: "pcpartdealseu.firebasestorage.app",
+      messagingSenderId: "912036519057",
+      appId: "1:912036519057:web:cde4d266c53c2229ad3330",
+      measurementId: "G-FPQ8YQ9EM0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usersCounter = document.getElementById("usersCounter");
+    const listingsCounter = document.getElementById("listingsCounter");
+    const homeListingGrid = document.getElementById("homeListingGrid");
+
+    function escapeHtml(value) {
+      const element = document.createElement("div");
+      element.textContent = value || "";
+      return element.innerHTML;
+    }
+
+    function isGpuOrCpu(item) {
+      const searchable = `${item.productType || ""} ${item.title || ""}`.toLowerCase();
+      return ["gpu", "graphics card", "video card", "cpu", "processor", "ryzen", "intel core"].some(
+        term => searchable.includes(term)
+      );
+    }
+
+    function renderFeaturedListings(listings) {
+      if (!listings.length) {
+        homeListingGrid.innerHTML = '<div class="home-listing-loading">No GPU or CPU listings are available right now.</div>';
+        return;
+      }
+
+      homeListingGrid.innerHTML = listings.map(item => `
+        <article class="home-listing-card">
+          <a class="home-listing-image" href="${escapeHtml(item.externalLink || "https://pcpartdeals.eu/browse")}" target="_blank" rel="noopener noreferrer">
+            <img src="${escapeHtml(item.imageUrl || "images/logo.png")}" alt="${escapeHtml(item.title || "PC hardware listing")}" loading="lazy" referrerpolicy="no-referrer">
+          </a>
+          <div class="home-listing-content">
+            <span class="home-listing-type">${escapeHtml(item.productType || "PC Hardware")}</span>
+            <h3>${escapeHtml(item.title || "PC hardware deal")}</h3>
+            <div class="home-listing-footer">
+              <strong>€${Number(item.price || 0).toFixed(2)}</strong>
+              <a href="${escapeHtml(item.externalLink || "https://pcpartdeals.eu/browse")}" target="_blank" rel="noopener noreferrer" aria-label="View ${escapeHtml(item.title || "listing")}">
+                <img src="icons/view-eye-svgrepo-com.svg" alt="" aria-hidden="true">
+              </a>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    async function loadHomepageData() {
+      try {
+        const [usersSnap, listingsSnap, listingDocs] = await Promise.all([
+          getCountFromServer(collection(db, "userSettings")),
+          getCountFromServer(collection(db, "listings")),
+          getDocs(collection(db, "listings"))
+        ]);
+
+        usersCounter.textContent = usersSnap.data().count;
+        listingsCounter.textContent = listingsSnap.data().count;
+
+        const candidates = listingDocs.docs
+          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+          .filter(item => item.sold !== true && isGpuOrCpu(item))
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+
+        renderFeaturedListings(candidates);
+      } catch (error) {
+        console.error(error);
+        usersCounter.textContent = "?";
+        listingsCounter.textContent = "?";
+        homeListingGrid.innerHTML = '<div class="home-listing-loading">Featured listings could not be loaded.</div>';
+      }
+    }
+
+    loadHomepageData();
+  </script>
 
   <!-- FEATURES -->
   <section class="features">
@@ -371,7 +426,9 @@
       <div class="feature-grid">
 
         <div class="feature-card">
-          <div class="feature-icon blue"></div>
+          <div class="feature-icon blue">
+            <img src="icons/new-svgrepo-com.svg" alt="" aria-hidden="true">
+          </div>
 
           <h3>Fast Listings</h3>
 
@@ -381,7 +438,9 @@
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon green"></div>
+          <div class="feature-icon green">
+            <img src="icons/lock-svgrepo-com.svg" alt="" aria-hidden="true">
+          </div>
 
           <h3>Safe Marketplace</h3>
 
@@ -391,7 +450,9 @@
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon red"></div>
+          <div class="feature-icon red">
+            <img src="icons/tag-plus-svgrepo-com.svg" alt="" aria-hidden="true">
+          </div>
 
           <h3>Best Deals</h3>
 
@@ -416,54 +477,6 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-  <!-- CATEGORIES -->
-  <section class="categories">
-    <div class="container">
-
-      <div class="section-title">
-        <h2>Popular Categories</h2>
-        <p>
-          Browse the most searched computer components.
-        </p>
-      </div>
-
-      <div class="category-grid">
-
-        <div class="category-card">
-          <h3>Graphics Cards</h3>
-          <p>NVIDIA & AMD GPUs</p>
-        </div>
-
-        <div class="category-card">
-          <h3>Processors</h3>
-          <p>Intel & Ryzen CPUs</p>
-        </div>
-
-        <div class="category-card">
-          <h3>RAM Memory</h3>
-          <p>DDR4 & DDR5 Kits</p>
-        </div>
-
-        <div class="category-card">
-          <h3>Storage</h3>
-          <p>SSDs & HDDs</p>
-        </div>
-
-        <div class="category-card">
-          <h3>Motherboards</h3>
-          <p>ATX, mATX & ITX</p>
-        </div>
-
-        <div class="category-card">
-          <h3>Gaming PCs</h3>
-          <p>Prebuilt & Custom</p>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
   <!-- HOW IT WORKS -->
 <section class="features">
 
@@ -491,7 +504,9 @@
 
       <div class="feature-card">
 
-        <div class="feature-icon blue"></div>
+        <div class="feature-icon blue">
+          <img src="icons/search-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           Browse Listings
@@ -506,7 +521,9 @@
 
       <div class="feature-card">
 
-        <div class="feature-icon green"></div>
+        <div class="feature-icon green">
+          <img src="icons/chart-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           Compare Prices
@@ -521,7 +538,9 @@
 
       <div class="feature-card">
 
-        <div class="feature-icon red"></div>
+        <div class="feature-icon red">
+          <img src="icons/lock-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           Buy Safely
@@ -566,6 +585,7 @@
     <div class="category-grid">
 
       <div class="category-card">
+        <img class="card-icon" src="icons/star-svgrepo-com.svg" alt="" aria-hidden="true">
 
         <h3>
           Check Seller Ratings
@@ -579,6 +599,7 @@
       </div>
 
       <div class="category-card">
+        <img class="card-icon" src="icons/info-circle-svgrepo-com.svg" alt="" aria-hidden="true">
 
         <h3>
           Avoid Unrealistic Prices
@@ -592,6 +613,7 @@
       </div>
 
       <div class="category-card">
+        <img class="card-icon" src="icons/view-eye-svgrepo-com.svg" alt="" aria-hidden="true">
 
         <h3>
           Ask For Testing
@@ -638,7 +660,9 @@
       <!-- ARTICLE -->
       <div class="feature-card">
 
-        <div class="feature-icon blue"></div>
+        <div class="feature-icon blue">
+          <img src="icons/info-square-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           TOP 3 Second hand PC parts marketplaces in Europe
@@ -669,7 +693,9 @@
       <!-- ARTICLE -->
       <div class="feature-card">
 
-        <div class="feature-icon green"></div>
+        <div class="feature-icon green">
+          <img src="icons/info-square-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           How To Avoid GPU Scams
@@ -701,7 +727,9 @@
       <!-- ARTICLE -->
       <div class="feature-card">
 
-        <div class="feature-icon red"></div>
+        <div class="feature-icon red">
+          <img src="icons/info-square-svgrepo-com.svg" alt="" aria-hidden="true">
+        </div>
 
         <h3>
           RTX 3060 vs RX 6600
