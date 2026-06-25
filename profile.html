@@ -165,6 +165,13 @@
             All Products
           </option>
 
+          <option value="CPU">CPU</option>
+          <option value="GPU">GPU</option>
+          <option value="MOTHERBOARD">MOTHERBOARD</option>
+          <option value="RAM">RAM</option>
+          <option value="HDD">HDD</option>
+          <option value="SSD">SSD</option>
+
         </select>
 
         <select id="sortPrice">
@@ -298,6 +305,35 @@
       );
 
     let allListings = [];
+    let filteredListings = [];
+    let visibleCount = 21;
+    const PAGE_SIZE = 21;
+    const PRODUCT_CATEGORIES = [
+      "CPU",
+      "GPU",
+      "MOTHERBOARD",
+      "RAM",
+      "HDD",
+      "SSD"
+    ];
+
+    function getProductCategory(item) {
+      const value =
+        String(
+          item.productCategory ||
+          item.productType ||
+          ""
+        ).toUpperCase();
+
+      if (PRODUCT_CATEGORIES.includes(value)) return value;
+      if (value.includes("MOTHERBOARD")) return "MOTHERBOARD";
+      if (value.includes("GPU") || value.includes("GRAPHICS")) return "GPU";
+      if (value.includes("CPU") || value.includes("PROCESSOR") || value.includes("RYZEN") || value.includes("INTEL")) return "CPU";
+      if (value.includes("RAM") || value.includes("MEMORY")) return "RAM";
+      if (value.includes("SSD")) return "SSD";
+      if (value.includes("HDD") || value.includes("HARD DRIVE")) return "HDD";
+      return "";
+    }
 
     // ESCAPE
     function escapeHtml(text) {
@@ -312,9 +348,9 @@
     }
 
     // RENDER
-    function renderListings(data) {
+    function renderListings(data, append = false) {
 
-      if (!data.length) {
+      if (!data.length && !append) {
 
         listingGrid.innerHTML = `
           <div class="loading">
@@ -325,7 +361,9 @@
         return;
       }
 
-      listingGrid.innerHTML = "";
+      if (!append) {
+        listingGrid.innerHTML = "";
+      }
 
       data.forEach(item => {
 
@@ -420,7 +458,7 @@
 
         filtered =
           filtered.filter(x =>
-            x.productType === product
+            getProductCategory(x) === product
           );
 
       }
@@ -443,7 +481,11 @@
 
       }
 
-      renderListings(filtered);
+      filteredListings = filtered;
+      visibleCount = PAGE_SIZE;
+      renderListings(
+        filteredListings.slice(0, visibleCount)
+      );
 
     }
 
@@ -549,18 +591,11 @@
           allListings.length;
 
         // PRODUCT FILTERS
-        const uniqueProducts =
-          [
-            ...new Set(
-              allListings.map(
-                x => x.productType
-              )
-            )
-          ];
+        productFilter.innerHTML = `
+          <option value="">All Products</option>
+        `;
 
-        uniqueProducts.forEach(product => {
-
-          if (!product) return;
+        PRODUCT_CATEGORIES.forEach(product => {
 
           const option =
             document.createElement("option");
@@ -575,7 +610,7 @@
 
         });
 
-        renderListings(allListings);
+        applyFilters();
 
       } catch (e) {
 
@@ -604,6 +639,31 @@
     sortPrice.addEventListener(
       "change",
       applyFilters
+    );
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        const nearBottom =
+          window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 500;
+
+        if (
+          !nearBottom ||
+          visibleCount >= filteredListings.length
+        ) {
+          return;
+        }
+
+        const oldCount = visibleCount;
+        visibleCount += PAGE_SIZE;
+
+        renderListings(
+          filteredListings.slice(oldCount, visibleCount),
+          true
+        );
+      },
+      { passive: true }
     );
 
     loadProfile();

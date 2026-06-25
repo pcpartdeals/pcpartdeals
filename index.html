@@ -164,21 +164,24 @@
 
       <nav class="nav" id="navMenu">
         <a href="https://pcpartdeals.eu/">Home</a>
-        <a href="https://pcpartdeals.eu/browse">Marketplace</a>
         <a href="https://pcpartdeals.eu/post-listing">Sell Parts</a>
         <a href="https://pcpartdeals.eu/privacy-policy">Privacy Policy</a>
         <a href="https://pcpartdeals.eu/terms-of-service">Terms</a>
         <a href="https://linktr.ee/pcpartdeals">Contact</a>
 
         <div class="mobile-buttons">
-          <a href="https://pcpartdeals.eu/login" class="btn btn-blue">Login or register</a>
-          <a href="https://pcpartdeals.eu/account" class="btn btn-green">My account</a>
+          <a href="https://pcpartdeals.eu/browse" class="btn btn-blue header-login-link">Browse Parts</a>
+          <a href="https://pcpartdeals.eu/login" class="auth-icon-button header-auth-button" aria-label="Login" title="Login">
+            <img src="icons/login-svgrepo-com.svg" alt="" aria-hidden="true">
+          </a>
         </div>
       </nav>
 
       <div class="desktop-buttons">
-        <a href="https://pcpartdeals.eu/login" class="btn btn-blue">Login or register</a>
-        <a href="https://pcpartdeals.eu/account" class="btn btn-green">My account</a>
+        <a href="https://pcpartdeals.eu/browse" class="btn btn-blue header-login-link">Browse Parts</a>
+        <a href="https://pcpartdeals.eu/login" class="auth-icon-button header-auth-button" aria-label="Login" title="Login">
+          <img src="icons/login-svgrepo-com.svg" alt="" aria-hidden="true">
+        </a>
       </div>
 
       <button class="hamburger" id="hamburgerBtn">
@@ -323,6 +326,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
     import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import {
       getFirestore,
       collection,
       getCountFromServer,
@@ -341,9 +348,32 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     const usersCounter = document.getElementById("usersCounter");
     const listingsCounter = document.getElementById("listingsCounter");
     const homeListingGrid = document.getElementById("homeListingGrid");
+
+    onAuthStateChanged(auth, user => {
+      document.querySelectorAll(".header-auth-button").forEach(button => {
+        const icon = button.querySelector("img");
+
+        if (user) {
+          button.href = "https://pcpartdeals.eu/account";
+          button.setAttribute("aria-label", "Open account");
+          button.title = "Open account";
+          icon.src = "icons/user-svgrepo-com.svg";
+        } else {
+          button.href = "https://pcpartdeals.eu/login";
+          button.setAttribute("aria-label", "Login");
+          button.title = "Login";
+          icon.src = "icons/login-svgrepo-com.svg";
+        }
+      });
+
+      document.querySelectorAll(".header-login-link").forEach(link => {
+        link.hidden = Boolean(user);
+      });
+    });
 
     function escapeHtml(value) {
       const element = document.createElement("div");
@@ -352,7 +382,7 @@
     }
 
     function isGpuOrCpu(item) {
-      const searchable = `${item.productType || ""} ${item.title || ""}`.toLowerCase();
+      const searchable = `${item.productCategory || item.productType || ""} ${item.title || ""}`.toLowerCase();
       return ["gpu", "graphics card", "video card", "cpu", "processor", "ryzen", "intel core"].some(
         term => searchable.includes(term)
       );
@@ -370,7 +400,7 @@
             <img src="${escapeHtml(item.imageUrl || "images/logo.png")}" alt="${escapeHtml(item.title || "PC hardware listing")}" loading="lazy" referrerpolicy="no-referrer">
           </a>
           <div class="home-listing-content">
-            <span class="home-listing-type">${escapeHtml(item.productType || "PC Hardware")}</span>
+            <span class="home-listing-type">${escapeHtml(item.productCategory || item.productType || "PC Hardware")}</span>
             <h3>${escapeHtml(item.title || "PC hardware deal")}</h3>
             <div class="home-listing-footer">
               <strong>€${Number(item.price || 0).toFixed(2)}</strong>
@@ -871,7 +901,7 @@
 
 <script type="module">
   // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -889,7 +919,7 @@
   };
 
   // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+  const app = getApp();
   const analytics = getAnalytics(app);
 </script>
 <script src="https://cdn.apitiny.net/scripts/v2.0/main.js" data-site-id="6a0f042d4b9c17c44c003e8c" data-test-mode="false" async></script>

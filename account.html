@@ -480,6 +480,10 @@
       );
 
     let currentUser = null;
+    let accountVisibleCount = 15;
+    let accountTotalCount = 0;
+    let accountPostsLoading = false;
+    const ACCOUNT_PAGE_SIZE = 15;
 
     // AUTH
     onAuthStateChanged(
@@ -834,9 +838,17 @@
     );
 
     // LOAD POSTS
-    async function loadPosts() {
+    async function loadPosts(resetVisible = true) {
+
+      if (accountPostsLoading) return;
+      accountPostsLoading = true;
 
       try {
+
+        if (resetVisible) {
+          accountVisibleCount =
+            ACCOUNT_PAGE_SIZE;
+        }
 
         const q = query(
           collection(db, "listings"),
@@ -853,6 +865,9 @@
         postCount.textContent =
           `${snap.size} Listings`;
 
+        accountTotalCount =
+          snap.size;
+
         if (snap.empty) {
 
           postsContainer.innerHTML = `
@@ -866,7 +881,9 @@
 
         postsContainer.innerHTML = "";
 
-        snap.forEach((docSnap) => {
+        snap.docs
+          .slice(0, accountVisibleCount)
+          .forEach((docSnap) => {
 
           const data =
             docSnap.data();
@@ -1122,9 +1139,38 @@
           </div>
         `;
 
+      } finally {
+
+        accountPostsLoading = false;
+
       }
 
     }
+
+    window.addEventListener(
+      "scroll",
+      () => {
+
+        const nearBottom =
+          window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 500;
+
+        if (
+          !nearBottom ||
+          accountPostsLoading ||
+          accountVisibleCount >= accountTotalCount
+        ) {
+          return;
+        }
+
+        accountVisibleCount +=
+          ACCOUNT_PAGE_SIZE;
+
+        loadPosts(false);
+
+      },
+      { passive: true }
+    );
 
     // LOGOUT
     document

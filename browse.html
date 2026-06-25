@@ -256,7 +256,15 @@
     </div>
     <div class="filter-grid">
       <label>Product
-        <select id="productFilter"><option value="">All Products</option></select>
+        <select id="productFilter">
+          <option value="">All Products</option>
+          <option value="CPU">CPU</option>
+          <option value="GPU">GPU</option>
+          <option value="MOTHERBOARD">MOTHERBOARD</option>
+          <option value="RAM">RAM</option>
+          <option value="HDD">HDD</option>
+          <option value="SSD">SSD</option>
+        </select>
       </label>
       <label>Marketplace
         <select id="marketplaceFilter">
@@ -508,8 +516,39 @@
 
     let allListings = [];
     let filteredListings = [];
-    let visibleCount = 18;
-    const PAGE_SIZE = 18;
+    let visibleCount = 21;
+    const PAGE_SIZE = 21;
+
+    const PRODUCT_CATEGORIES = [
+      "CPU",
+      "GPU",
+      "MOTHERBOARD",
+      "RAM",
+      "HDD",
+      "SSD"
+    ];
+
+    function getProductCategory(item) {
+      const value =
+        String(
+          item.productCategory ||
+          item.productType ||
+          ""
+        ).toUpperCase();
+
+      if (PRODUCT_CATEGORIES.includes(value)) {
+        return value;
+      }
+
+      if (value.includes("MOTHERBOARD")) return "MOTHERBOARD";
+      if (value.includes("GPU") || value.includes("GRAPHICS")) return "GPU";
+      if (value.includes("CPU") || value.includes("PROCESSOR") || value.includes("RYZEN") || value.includes("INTEL")) return "CPU";
+      if (value.includes("RAM") || value.includes("MEMORY")) return "RAM";
+      if (value.includes("SSD")) return "SSD";
+      if (value.includes("HDD") || value.includes("HARD DRIVE")) return "HDD";
+
+      return "";
+    }
 
     const marketplaceCountries = {
       eBay: ["EU", "Germany", "France", "Spain", "United Kingdom"],
@@ -1194,7 +1233,7 @@ ${!listingStatus.valid ? `
         filtered =
           filtered.filter(x =>
 
-            x.productType === product
+            getProductCategory(x) === product
 
           );
 
@@ -1380,18 +1419,7 @@ ${!listingStatus.valid ? `
           </option>
         `;
     
-        const uniqueProducts =
-          [
-            ...new Set(
-              allListings.map(
-                x => x.productType
-              )
-            )
-          ];
-    
-        uniqueProducts.forEach(product => {
-    
-          if (!product) return;
+        PRODUCT_CATEGORIES.forEach(product => {
     
           const option =
             document.createElement(

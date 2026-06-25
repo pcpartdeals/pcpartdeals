@@ -203,7 +203,7 @@
                 </label>
 
                 <select
-                  id="productType"
+                  id="productCategory"
                   required
                 >
 
@@ -211,57 +211,12 @@
                     Select Category
                   </option>
 
-                  <option>
-                    Ryzen CPU
-                  </option>
-
-                  <option>
-                    Intel CPU
-                  </option>
-
-                  <option>
-                    NVIDIA GPU
-                  </option>
-
-                  <option>
-                    AMD GPU
-                  </option>
-
-                  <option>
-                    Gaming PC
-                  </option>
-
-                  <option>
-                    RAM
-                  </option>
-
-                  <option>
-                    SSD
-                  </option>
-
-                  <option>
-                    HDD
-                  </option>
-
-                  <option>
-                    Motherboard
-                  </option>
-
-                  <option>
-                    PSU
-                  </option>
-
-                  <option>
-                    CPU Cooler
-                  </option>
-
-                  <option>
-                    Expansion Card
-                  </option>
-
-                  <option>
-                    Other
-                  </option>
+                  <option value="CPU">CPU</option>
+                  <option value="GPU">GPU</option>
+                  <option value="MOTHERBOARD">MOTHERBOARD</option>
+                  <option value="RAM">RAM</option>
+                  <option value="HDD">HDD</option>
+                  <option value="SSD">SSD</option>
 
                 </select>
 
@@ -813,9 +768,9 @@ if (/(.)\1{5,}/.test(title)) {
   return;
 
 }
-        const productType =
+        const productCategory =
           document
-            .getElementById("productType")
+            .getElementById("productCategory")
             .value;
 
         const marketplace =
@@ -987,7 +942,7 @@ if (/(.)\1{5,}/.test(title)) {
 
               title,
 
-              productType,
+              productCategory,
 
               marketplace,
 
