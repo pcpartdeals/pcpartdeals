@@ -369,11 +369,7 @@
     import {
       getFirestore,
       collection,
-      getCountFromServer,
-      getDocs,
-      query,
-      orderBy,
-      limit
+      getCountFromServer
     } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -392,8 +388,12 @@
     const usersCounter = document.getElementById("usersCounter");
     const listingsCounter = document.getElementById("listingsCounter");
     const homeListingGrid = document.getElementById("homeListingGrid");
-    const HOME_CACHE_KEY = "pcpartdealsHomeCacheV1";
+    const HOME_CACHE_KEY = "pcpartdealsHomeCacheV2";
+    const HOME_EBAY_CACHE_KEY = "pcpartdealsHomeEbayListingsCacheV1";
+    const SHARED_EBAY_CACHE_KEY = "pcpartdealsEbayListingsCacheV1";
+    const EBAY_LISTINGS_API_URL = "https://api.pcpartdeals.eu/api/ebay/listings";
     const CACHE_TTL_MS = 30 * 60 * 1000;
+    const EBAY_CACHE_TTL_MS = 60 * 60 * 1000;
 
     onAuthStateChanged(auth, user => {
       document.querySelectorAll(".header-auth-button").forEach(button => {
@@ -423,7 +423,7 @@
       return element.innerHTML;
     }
 
-    function readCache(key, allowExpired = false) {
+    function readCache(key, allowExpired = false, ttlMs = CACHE_TTL_MS) {
       try {
         const cached = JSON.parse(localStorage.getItem(key) || "null");
 
@@ -431,7 +431,7 @@
           return null;
         }
 
-        if (!allowExpired && Date.now() - Number(cached.cachedAt) >= CACHE_TTL_MS) {
+        if (!allowExpired && Date.now() - Number(cached.cachedAt) >= ttlMs) {
           return null;
         }
 
@@ -468,11 +468,115 @@
         id: item.id || "",
         title: item.title || "",
         price: Number(item.price || 0),
+        shippingPrice: Number(item.shippingPrice || 0),
+        totalPrice: Number(item.totalPrice || item.price || 0),
         imageUrl: item.imageUrl || "",
         externalLink: item.externalLink || "",
         productCategory: item.productCategory || "",
-        productType: item.productType || ""
+        productType: item.productType || item.productCategory || "",
+        productModel: item.productModel || "",
+        marketplace: item.marketplace || ""
       };
+    }
+
+    function normalizeEbayFeaturedListing(item) {
+      return normalizeFeaturedListing({
+        ...item,
+        id: `ebay:${item.id || item.externalLink || item.title}`,
+        marketplace: "eBay",
+        productType: item.productCategory || item.productType || "",
+        imageUrl: item.imageUrl || "images/logo.png",
+        externalLink: item.externalLink || "",
+        totalPrice: Number(item.totalPrice || (Number(item.price || 0) + Number(item.shippingPrice || 0)))
+      });
+    }
+
+    function getEbayCache(allowExpired = false) {
+      const sharedCache =
+        readCache(SHARED_EBAY_CACHE_KEY, allowExpired, EBAY_CACHE_TTL_MS);
+
+      if (sharedCache && Array.isArray(sharedCache.listings)) {
+        return {
+          total: Number(sharedCache.total || sharedCache.listings.length || 0),
+          listings: sharedCache.listings.map(normalizeFeaturedListing)
+        };
+      }
+
+      const homeCache =
+        readCache(HOME_EBAY_CACHE_KEY, allowExpired, EBAY_CACHE_TTL_MS);
+
+      if (homeCache && Array.isArray(homeCache.listings)) {
+        return {
+          total: Number(homeCache.total || homeCache.listings.length || 0),
+          listings: homeCache.listings.map(normalizeFeaturedListing)
+        };
+      }
+
+      return null;
+    }
+
+    async function fetchHomepageEbayDeals() {
+      const cached =
+        getEbayCache();
+
+      if (cached) {
+        return cached;
+      }
+
+      try {
+        const url =
+          new URL(EBAY_LISTINGS_API_URL);
+
+        url.searchParams.set("limit", "50");
+        url.searchParams.set("sort", "score");
+
+        const response =
+          await fetch(url.toString(), {
+            headers: {
+              Accept: "application/json"
+            }
+          });
+
+        if (!response.ok) {
+          throw new Error(`eBay listings API failed with ${response.status}`);
+        }
+
+        const payload =
+          await response.json();
+
+        const listings =
+          Array.isArray(payload.listings)
+            ? payload.listings.map(normalizeEbayFeaturedListing)
+            : [];
+
+        const result = {
+          total: Number(payload.total || listings.length || 0),
+          listings
+        };
+
+        writeCache(HOME_EBAY_CACHE_KEY, result);
+
+        return result;
+      } catch (error) {
+        const staleCache =
+          getEbayCache(true);
+
+        if (staleCache) {
+          console.warn(
+            "Using stale homepage eBay listings cache after API fetch failed",
+            error
+          );
+
+          return staleCache;
+        }
+
+        console.error("Failed loading homepage eBay listings", error);
+
+        return {
+          total: 0,
+          listings: []
+        };
+      }
     }
 
     function renderFeaturedListings(listings) {
@@ -490,7 +594,7 @@
             <span class="home-listing-type">${escapeHtml(item.productCategory || item.productType || "PC Hardware")}</span>
             <h3>${escapeHtml(item.title || "PC hardware deal")}</h3>
             <div class="home-listing-footer">
-              <strong>€${Number(item.price || 0).toFixed(2)}</strong>
+              <strong>€${Number(item.totalPrice || item.price || 0).toFixed(2)}</strong>
               <a href="${escapeHtml(item.externalLink || "https://pcpartdeals.eu/browse")}" target="_blank" rel="noopener noreferrer" aria-label="View ${escapeHtml(item.title || "listing")}">
                 <img src="icons/view-eye-svgrepo-com.svg" alt="" aria-hidden="true">
               </a>
@@ -511,28 +615,33 @@
       }
 
       try {
-        const [usersSnap, listingsSnap, listingDocs] = await Promise.all([
+        const [usersSnap, listingsSnap, ebayDeals] = await Promise.all([
           getCountFromServer(collection(db, "userSettings")),
           getCountFromServer(collection(db, "listings")),
-          getDocs(query(collection(db, "listings"), orderBy("createdAt", "desc"), limit(90)))
+          fetchHomepageEbayDeals()
         ]);
 
         const usersCount = usersSnap.data().count;
-        const listingsCount = listingsSnap.data().count;
+        const firestoreListingsCount = listingsSnap.data().count;
+        const ebayListingsCount = Number(ebayDeals.total || ebayDeals.listings.length || 0);
+        const listingsCount = firestoreListingsCount + ebayListingsCount;
 
         usersCounter.textContent = usersCount;
         listingsCounter.textContent = listingsCount;
 
-        const candidates = listingDocs.docs
-          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-          .filter(item => item.sold !== true && isGpuOrCpu(item))
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3)
-          .map(normalizeFeaturedListing);
+        const gpuOrCpuDeals =
+          ebayDeals.listings
+            .filter(isGpuOrCpu);
+
+        const candidates =
+          (gpuOrCpuDeals.length ? gpuOrCpuDeals : ebayDeals.listings)
+            .slice(0, 3)
+            .map(normalizeFeaturedListing);
 
         writeCache(HOME_CACHE_KEY, {
           usersCount,
           listingsCount,
+          ebayListingsCount,
           featuredListings: candidates
         });
 
